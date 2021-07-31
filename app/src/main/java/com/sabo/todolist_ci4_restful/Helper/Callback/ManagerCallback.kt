@@ -24,12 +24,12 @@ class ManagerCallback {
 
         const val MULTIPLE_PERMISSION = 333
 
-        fun onStartSweetLoading(context: Context, title: String, content: String) {
+        fun onStartSweetLoading(context: Context, content: String) {
             sweetLoading = SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE)
             sweetLoading.setCancelable(false)
             sweetLoading.progressHelper.barColor =
                 context.resources.getColor(R.color.blue, context.theme)
-            sweetLoading.titleText = "$title..."
+            sweetLoading.titleText = "Please wait..."
             if (content.isNotEmpty()) {
                 sweetLoading.showContentText(true)
                 sweetLoading.contentText = "$content."

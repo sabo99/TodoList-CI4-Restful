@@ -36,11 +36,11 @@
             android:layout_height="wrap_content"
             android:text="@string/sign_up"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textStyle="bold"
             android:textColor="#FFFFFF"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilUsername"

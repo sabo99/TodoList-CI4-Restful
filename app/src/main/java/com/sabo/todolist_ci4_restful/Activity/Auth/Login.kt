@@ -186,7 +186,7 @@ class Login : AppCompatActivity() {
         sweetTwoFactorAuth.show()
         ManagerCallback.initCustomSweetAlertDialog(this, view, sweetTwoFactorAuth)
 
-        ManagerCallback.onStartSweetLoading(this@Login, "Please wait", "Code Sent")
+        ManagerCallback.onStartSweetLoading(this@Login, "Code Sent")
     }
 
     private fun sendVerificationCode(response: Response<RestfulAPIResponse>): String {

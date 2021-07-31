@@ -158,7 +158,7 @@ class CreateTodo : AppCompatActivity() {
             title.isEmpty() -> binding.tilTitle.error = "The title field is required."
             desc.isEmpty() -> binding.tilDesc.error = "The description field is required."
             else -> {
-                ManagerCallback.onStartSweetLoading(this, "Please wait", "Create todo")
+                ManagerCallback.onStartSweetLoading(this, "Create todo")
 
                 val todo = Todo(0, user.uid, title, desc, image, "", "")
 

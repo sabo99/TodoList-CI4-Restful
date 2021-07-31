@@ -181,7 +181,7 @@ class EditTodo : AppCompatActivity() {
      * - Description
      */
     private fun onUpdate(todo: Todo) {
-        ManagerCallback.onStartSweetLoading(this, "Please wait", "Update todo")
+        ManagerCallback.onStartSweetLoading(this, "Update todo")
 
         RestfulAPIService.requestMethod().updateTodo(todo.id, todo.uid, todo.title, todo.desc)
             .enqueue(

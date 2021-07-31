@@ -55,7 +55,7 @@ class ProfileCallback {
          * On Edited
          */
         fun onEdited(context: Context, user: User, keyUpdate: Int){
-            ManagerCallback.onStartSweetLoading(context, "Please wait", "")
+            ManagerCallback.onStartSweetLoading(context, "")
             RestfulAPIService.requestMethod().editUser(user.uid).enqueue(object :
                 Callback<RestfulAPIResponse> {
                 override fun onResponse(
@@ -103,7 +103,7 @@ class ProfileCallback {
                     }
                 }
             }
-            ManagerCallback.onStartSweetLoading(context, "Please wait", content)
+            ManagerCallback.onStartSweetLoading(context, content)
 
             Handler().postDelayed({
                 RestfulAPIService.requestMethod()
@@ -188,7 +188,7 @@ class ProfileCallback {
             }
             sweetAlertDialogMain.setConfirmClickListener {
                 val uid = ManagerPreferences.getUID(context)
-                ManagerCallback.onStartSweetLoading(context, "Please wait", "Delete account")
+                ManagerCallback.onStartSweetLoading(context, "Delete account")
 
                 RestfulAPIService.requestMethod().deleteAllTodo(uid).enqueue(object :
                     Callback<RestfulAPIResponse> {

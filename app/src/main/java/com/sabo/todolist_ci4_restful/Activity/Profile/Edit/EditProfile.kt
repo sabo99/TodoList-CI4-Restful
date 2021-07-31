@@ -123,7 +123,7 @@ class EditProfile : AppCompatActivity() {
                 binding.civAvatar.setImageURI(uri)
                 filePath = FileUtilsCallback.getFilePath(this, uri)
 
-                ManagerCallback.onStartSweetLoading(this, "Please wait", "Change avatar")
+                ManagerCallback.onStartSweetLoading(this, "Change avatar")
                 Handler().postDelayed({ uploadAvatar() }, 2000)
             }
         }

@@ -30,7 +30,7 @@ class TodoCallback {
 
         fun onShowed(context: Context, id: Int) {
             ManagerCallback.onStartSweetLoading(
-                context, "Please wait",
+                context,
                 "Load todo id : ${ManagerCallback.hashTagNumber(id)}"
             )
             RestfulAPIService.requestMethod().editTodo(id).enqueue(object :
@@ -78,7 +78,7 @@ class TodoCallback {
             sweet.setCancelClickListener { sweet.dismissWithAnimation() }
             sweet.setConfirmClickListener {
                 sweet.dismissWithAnimation()
-                ManagerCallback.onStartSweetLoading(context, "Please wait", "Delete todo")
+                ManagerCallback.onStartSweetLoading(context, "Delete todo")
 
                 RestfulAPIService.requestMethod().deleteTodo(todo.id)
                     .enqueue(object : Callback<RestfulAPIResponse> {

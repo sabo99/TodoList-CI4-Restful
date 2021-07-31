@@ -111,8 +111,8 @@
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/white"
                         android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <Chronometer

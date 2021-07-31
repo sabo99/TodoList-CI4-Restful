@@ -248,7 +248,7 @@ class ForgotPassword {
 
 
         private fun sendVerificationCode(context: Context, user: User, code: String) {
-            ManagerCallback.onStartSweetLoading(context, "Please wait", "Code sent")
+            ManagerCallback.onStartSweetLoading(context, "Code sent")
 
 
             Thread(Runnable {
