@@ -1,0 +1,71 @@
+<resources>
+    <string name="app_name">TodoList-CI4-Restful</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="login">Login</string>
+    <string name="logout">Log Out</string>
+    <string name="close">Close</string>
+    <string name="action_forgot_password">Forgot password?</string>
+    <string name="action_to_activity_login">Already have an account? Log In</string>
+    <string name="action_to_activity_sign_up">Don\'t have an account? Sign Up</string>
+    <string name="sign_up">Sign Up</string>
+
+    <!--  Hint String  -->
+    <string name="hint_image">Image</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_password_confirm">Password Confirm</string>
+    <string name="hint_current_password">Current Password</string>
+    <string name="hint_new_password">New Password</string>
+    <string name="hint_title">Title</string>
+    <string name="hint_description">Description</string>
+    <string name="hint_date_status">CreatedAt / UpdatedAt :</string>
+    <string name="hint_date">2021–10–10</string>
+    <string name="hint_profile">Profile</string>
+    <string name="hint_edit">Edit</string>
+    <string name="hint_delete">Delete</string>
+    <string name="hint_create">Create</string>
+    <string name="hint_ver_code">Verification Code</string>
+
+    <!--  Title & Subtitle -->
+    <string name="title_add_todo">Add new Todo</string>
+    <string name="subtitle_add_todo">Add new things to this to do list.</string>
+
+    <string name="title_update_todo">Update Todo</string>
+    <string name="subtitle_update_todo">Input new things in current to do list.</string>
+
+    <string name="title_two_factor_auth">Two Factor Authentication</string>
+    <string name="subtitle_two_factor_auth">Enter the verification code that has been sent to your email address.</string>
+    <string name="subtitle_enter_current_pass">Enter your current password.</string>
+
+    <string name="title_edit_username">Change your username</string>
+    <string name="subtitle_edit_username">Enter a new username and your existing password.</string>
+
+    <string name="title_edit_email">Enter an email address</string>
+    <string name="subtitle_edit_email">Enter a new email address and your existing password.</string>
+
+    <string name="title_edit_password">Change your password</string>
+    <string name="subtitle_edit_password">Enter a current password and a new password.</string>
+    <string name="title_forgot_password">Forgot your password</string>
+    <string name="subtitle_enter_exist_email">Enter an existing email address.</string>
+    <string name="subtitle_enter_new_pass">Enter a new password and verification code.</string>
+    <string name="hint_resend_code">Code verification resend in ... 02:00</string>
+    <string name="hint_username_uid">Username #0000</string>
+    <string name="hint_email_profile">*****@gmail.com</string>
+    <string name="action_edit_profile">Edit Profile</string>
+    <string name="action_edit">Edit</string>
+    <string name="hint_username_all_caps_lock">USERNAME</string>
+    <string name="hint_email_all_caps_lock">EMAIL</string>
+    <string name="title_pass_auth">Password and Authentication</string>
+    <string name="action_change_pass">Change Password</string>
+    <string name="subtitle_two_factor_auth_profile">Protect your account with an extra layer of security. Once configured, you\'ll be required to enter your password and an authentication code from your email in order to sign in.</string>
+    <string name="action_two_factor_auth">Enable Two Factor Auth</string>
+    <string name="title_remove_acc">Account Removal </string>
+    <string name="subtitle_remove_acc">Delete your account means you never recover it after taking this action.</string>
+    <string name="action_remove_acc">Delete Account</string>
+    <string name="title_edit_profile">User Profile</string>
+    <string name="action_change_avatar">Change Avatar</string>
+    <string name="customizing_my_profile">Customizing My Profile</string>
+    <string name="subtitle_enable_two">Enter the verification code to enable two factor auth.</string>
+</resources>
