@@ -182,7 +182,6 @@ class CreateTodo : AppCompatActivity() {
                                     when (response.body()!!.code) {
                                         201 -> {
                                             Handler().postDelayed({
-                                                ManagerCallback.onStopSweetLoading()
                                                 TodoCallback.onFinish(
                                                     this@CreateTodo,
                                                     sweetAlertDialog
@@ -194,7 +193,7 @@ class CreateTodo : AppCompatActivity() {
                                                 ).show()
                                                 EventBus.getDefault()
                                                     .postSticky(EventOnRefresh(true, ""))
-
+                                                ManagerCallback.onStopSweetLoading()
                                             }, 2000)
                                         }
                                         400 -> {

@@ -199,7 +199,6 @@ class EditTodo : AppCompatActivity() {
                                      */
                                     if (todo.image.isEmpty())
                                         Handler().postDelayed({
-                                            ManagerCallback.onStopSweetLoading()
                                             TodoCallback.onFinish(
                                                 this@EditTodo,
                                                 sweetAlertDialog
@@ -216,6 +215,7 @@ class EditTodo : AppCompatActivity() {
                                                         response.body()!!.todo
                                                     )
                                                 )
+                                            ManagerCallback.onStopSweetLoading()
                                         }, 2000)
 
                                     /**

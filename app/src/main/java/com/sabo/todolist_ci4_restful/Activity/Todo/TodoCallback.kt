@@ -77,7 +77,7 @@ class TodoCallback {
             sweet.cancelText = "Cancel"
             sweet.setCancelClickListener { sweet.dismissWithAnimation() }
             sweet.setConfirmClickListener {
-
+                sweet.dismissWithAnimation()
                 ManagerCallback.onStartSweetLoading(context, "Please wait", "Delete todo")
 
                 RestfulAPIService.requestMethod().deleteTodo(todo.id)
@@ -88,7 +88,7 @@ class TodoCallback {
                         ) {
                             if (response.isSuccessful) {
                                 Handler().postDelayed({
-                                    sweet.dismissWithAnimation()
+
                                     ManagerCallback.onStopSweetLoading()
                                     Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show()
                                     (context as Activity).finish()
@@ -99,7 +99,7 @@ class TodoCallback {
                         }
 
                         override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                            ManagerCallback.onFailureSweetLoading("Something error with server connection")
+                            ManagerCallback.onFailureSweetLoading("Can't Delete Todo.\nSomething wrong with server connection")
                         }
 
                     })
