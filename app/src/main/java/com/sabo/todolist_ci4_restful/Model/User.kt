@@ -11,5 +11,4 @@ data class User(
     var password: String?,
     var avatar: String?,
     var two_factor_auth: Int,
-    var status: Int
 ) : Parcelable

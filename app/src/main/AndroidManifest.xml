@@ -39,7 +39,7 @@
             android:launchMode="singleTask"
             android:theme="@style/SweetAlert.NoActionBar" />
         <activity
-            android:name=".Activity.Profile.EditProfile"
+            android:name=".Activity.Profile.Edit.EditProfile"
             android:launchMode="singleTask"
             android:theme="@style/SweetAlert.NoActionBar" />
         <activity

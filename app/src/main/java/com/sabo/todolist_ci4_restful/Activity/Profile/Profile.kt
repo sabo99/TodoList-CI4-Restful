@@ -106,35 +106,23 @@ class Profile : AppCompatActivity() {
             })
 
         binding.btnEditProfile.setOnClickListener {
-            ProfileCallback.onUpdateProfile(this, user)
+            ProfileCallback.onEdited(this, user, ProfileCallback.KEY_PROFILE)
         }
 
         binding.btnEditUsername.setOnClickListener {
-//            ProfileCallback.onUpdateUsername(
-//                this,
-//                user,
-//                LayoutInflater.from(this).inflate(R.layout.sweet_alert_dialog_edit_username, null)
-//            )
+            ProfileCallback.onEdited(this, user, ProfileCallback.KEY_USERNAME)
         }
 
         binding.btnEditEmail.setOnClickListener {
-//            ProfileCallback.onUpdateEmail(
-//                this,
-//                user,
-//                LayoutInflater.from(this).inflate(R.layout.sweet_alert_dialog_edit_email, null)
-//            )
+            ProfileCallback.onEdited(this, user, ProfileCallback.KEY_EMAIL)
         }
 
         binding.btnChangePassword.setOnClickListener {
-//            ProfileCallback.onUpdatePassword(
-//                this,
-//                user,
-//                LayoutInflater.from(this).inflate(R.layout.sweet_alert_dialog_edit_password, null)
-//            )
+            ProfileCallback.onEdited(this, user, ProfileCallback.KEY_PASSWORD)
         }
 
         binding.btnTwoFactorAuth.setOnClickListener {
-            ProfileCallback.onEnableOrDisableTwoFactorAuth(this, user)
+            ProfileCallback.onEdited(this, user, ProfileCallback.KEY_TWO_FACTOR_AUTH)
         }
 
         binding.btnDeleteAccount.setOnClickListener {

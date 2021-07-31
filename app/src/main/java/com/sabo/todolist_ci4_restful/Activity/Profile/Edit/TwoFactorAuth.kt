@@ -1,4 +1,4 @@
-package com.sabo.todolist_ci4_restful.Activity.Profile
+package com.sabo.todolist_ci4_restful.Activity.Profile.Edit
 
 import android.app.Activity
 import android.content.Context
@@ -11,7 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
-import com.sabo.todolist_ci4_restful.Activity.Auth.ForgotPassword
+import com.sabo.todolist_ci4_restful.Activity.Profile.ProfileCallback
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.Credentials
 import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.GMailSender
@@ -38,7 +38,7 @@ class TwoFactorAuth {
         private var LAYOUT_KEY = LAYOUT_CURRENT_PASS
 
 
-        fun onStart(context: Context, user: User) {
+        fun onUpdated(context: Context, user: User) {
             LAYOUT_KEY = LAYOUT_CURRENT_PASS
 
             val view = LayoutInflater.from(context)
@@ -81,8 +81,7 @@ class TwoFactorAuth {
                                 user.email,
                                 currentPassword,
                                 "",
-                                twoFactorAuth,
-                                0
+                                twoFactorAuth
                             )
                         )
                     }
@@ -117,7 +116,7 @@ class TwoFactorAuth {
                             }
                         } else {
                             if (response.message().contains("Not Found"))
-                                binding.tilCurrentPassword.error = "Your password was wrong."
+                                binding.tilCurrentPassword.error = "Your current password was wrong."
                             else
                                 ManagerCallback.onSweetAlertDialogWarning(
                                     context,
@@ -132,6 +131,10 @@ class TwoFactorAuth {
                     override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                         binding.progressBar.visibility = View.GONE
                         Log.d("reAuth-TwoFactorAuth", t.message!!)
+                        ManagerCallback.onSweetAlertDialogWarning(
+                            context,
+                            "Something Wrong with server connection."
+                        )
                     }
                 })
         }
@@ -165,7 +168,7 @@ class TwoFactorAuth {
                         binding.tilVerificationCode.error = "Your verification code is wrong."
                     else {
                         countDownTimer.cancel()
-                        ProfileCallback.updateValue(
+                        ProfileCallback.onUpdateValues(
                             context,
                             sweetAlertDialog,
                             user,

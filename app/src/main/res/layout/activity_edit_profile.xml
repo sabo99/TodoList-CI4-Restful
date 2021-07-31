@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/cope_cod"
     android:theme="@style/SweetAlert.MaterialComponents"
-    tools:context=".Activity.Profile.EditProfile">
+    tools:context=".Activity.Profile.Edit.EditProfile">
 
 
     <androidx.cardview.widget.CardView
@@ -86,7 +86,7 @@
                     android:layout_marginTop="20dp"
                     android:text="@string/customizing_my_profile"
                     android:textAllCaps="true"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textColor="@color/white_70"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -108,7 +108,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/title_edit_profile"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/white"
                         android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
@@ -119,7 +119,7 @@
                         android:id="@+id/chronometer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/textView1" />
