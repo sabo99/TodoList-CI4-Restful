@@ -2,19 +2,17 @@ package com.sabo.todolist_ci4_restful.Activity.Auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Activity.MainActivity
-import com.sabo.todolist_ci4_restful.Activity.Profile.ProfileCallback
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
-import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.Credentials
-import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.GMailSender
 import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
 import com.sabo.todolist_ci4_restful.R
 import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIResponse
@@ -28,6 +26,13 @@ import retrofit2.Response
 class Login : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
+    private lateinit var sweetTwoFactorAuth: SweetAlertDialog
+    private lateinit var bindingSweetTwoFactorAuth: SweetAlertDialogTwoFactorAuthenticationBinding
+    private lateinit var countDownTimer: CountDownTimer
+
+    private val DELAY: Long = 120000
+    private val INTERVAL: Long = 1000
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +45,7 @@ class Login : AppCompatActivity() {
 
     private fun initViews() {
 
-        binding.tvSignUp.text = ManagerCallback.generateTextViewButton(this, true)
+        binding.tvSignUp.text = ManagerCallback.onGenerateTextViewButton(this, true)
 
         binding.tvSignUp.setOnClickListener {
             startActivity(Intent(this, SignUp::class.java))
@@ -68,8 +73,12 @@ class Login : AppCompatActivity() {
                                 clearEditText()
                                 if (response.body()!!.user.two_factor_auth == 0)
                                     goToMainActivity(response)
-                                else
-                                    checkTwoFactorAuth(response)
+                                else {
+                                    val code = ManagerCallback.onGenerateTokenCode()
+                                    showTwoFactorAuth(response, code)
+                                    countDownTimer(response)
+                                }
+
                             }
                             400 -> {
                                 val validation = response.body()!!.errorValidation
@@ -81,11 +90,6 @@ class Login : AppCompatActivity() {
 
                                 binding.tilEmail.error = validation.email
                                 binding.tilPassword.error = validation.password
-
-                                Log.d(
-                                    "validation",
-                                    "\nEmail : ${validation.email} \nPassword : ${validation.password}"
-                                )
                             }
                         }
                     } else {
@@ -99,14 +103,17 @@ class Login : AppCompatActivity() {
 
                     binding.progressBar.visibility = View.GONE
                     binding.btnLogin.isEnabled = true
+                    ManagerCallback.onLog("signIn", "$response", "${response.body()}")
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                    Log.d("reponse", t.message!!)
-                   ManagerCallback.onSweetAlertDialogWarning(this@Login, "Something wrong with server connection")
-
                     binding.progressBar.visibility = View.GONE
                     binding.btnLogin.isEnabled = true
+                    ManagerCallback.onSweetAlertDialogWarning(
+                        this@Login,
+                        "Something wrong with server connection"
+                    )
+                    ManagerCallback.onLog("signIn", "${t.message}")
                 }
             })
         }
@@ -138,13 +145,12 @@ class Login : AppCompatActivity() {
         finish()
     }
 
-    private fun checkTwoFactorAuth(response: Response<RestfulAPIResponse>) {
-        val code = sendVerificationCode(response)
-
-        val sweetTwoFactorAuth = SweetAlertDialog(this, SweetAlertDialog.NORMAL_TYPE)
+    private fun showTwoFactorAuth(response: Response<RestfulAPIResponse>, code: String) {
         val view = LayoutInflater.from(this)
             .inflate(R.layout.sweet_alert_dialog_two_factor_authentication, null)
-        val bindingSweetTwoFactorAuth = SweetAlertDialogTwoFactorAuthenticationBinding.bind(view)
+
+        sweetTwoFactorAuth = SweetAlertDialog(this, SweetAlertDialog.NORMAL_TYPE)
+        bindingSweetTwoFactorAuth = SweetAlertDialogTwoFactorAuthenticationBinding.bind(view)
 
         sweetTwoFactorAuth.isShowCancelButton
         sweetTwoFactorAuth.cancelText = "Cancel"
@@ -172,50 +178,91 @@ class Login : AppCompatActivity() {
                 override fun afterTextChanged(s: Editable?) {}
             })
         }
-        sweetTwoFactorAuth.setCancelClickListener { sweetTwoFactorAuth.dismissWithAnimation() }
+        sweetTwoFactorAuth.setCancelClickListener {
+            sweetTwoFactorAuth.dismissWithAnimation()
+            countDownTimer.cancel()
+        }
+        /** setConfirmListener */
+        setConfirmListener(response, code)
+
+        sweetTwoFactorAuth.show()
+        ManagerCallback.initCustomSweetAlertDialog(this, view, sweetTwoFactorAuth)
+
+
+        ManagerCallback.sendVerificationCode(
+            this@Login,
+            response.body()!!.user,
+            "Log In verification code",
+            code
+        )
+    }
+
+
+    private fun setConfirmListener(
+        response: Response<RestfulAPIResponse>,
+        code: String
+    ) {
         sweetTwoFactorAuth.setConfirmClickListener {
             val codeVerification = bindingSweetTwoFactorAuth.etVerificationCode.text.toString()
             if (codeVerification != code) {
                 bindingSweetTwoFactorAuth.tilVerificationCode.error =
                     "Your verification code is wrong."
             } else {
+                countDownTimer.cancel()
                 sweetTwoFactorAuth.dismissWithAnimation()
                 goToMainActivity(response)
             }
         }
-        sweetTwoFactorAuth.show()
-        ManagerCallback.initCustomSweetAlertDialog(this, view, sweetTwoFactorAuth)
-
-        ManagerCallback.onStartSweetLoading(this@Login, "Code Sent")
     }
 
-    private fun sendVerificationCode(response: Response<RestfulAPIResponse>): String {
-        val code = ManagerCallback.generateTokenCode()
-        Thread(Runnable {
-            try {
-                val sender =
-                    GMailSender(
-                        Credentials.EMAIL_SENDER,
-                        Credentials.PASSWORD_SENDER
+    private fun countDownTimer(response: Response<RestfulAPIResponse>) {
+        countDownTimer = object : CountDownTimer(DELAY, INTERVAL) {
+            override fun onTick(millisUntilFinished: Long) {
+                bindingSweetTwoFactorAuth.tvResendCode.isEnabled = false
+                val minutes =
+                    DateUtils.formatElapsedTime(millisUntilFinished.div(INTERVAL))
+                        .replace(".", ":")
+
+                bindingSweetTwoFactorAuth.tvResendCode.text =
+                    "Code verification resend in ... $minutes"
+                bindingSweetTwoFactorAuth.tvResendCode.setTextColor(
+                    resources.getColor(
+                        R.color.white_70,
+                        theme
                     )
-                sender.sendMail(
-                    "Log In Verification Code",
-                    "Code : $code",
-                    "${Credentials.EMAIL_SENDER}",
-                    "${response.body()!!.user.email}"
+                )
+            }
+
+            override fun onFinish() {
+                bindingSweetTwoFactorAuth.tvResendCode.isEnabled = true
+                bindingSweetTwoFactorAuth.tvResendCode.text = "Resend verification code."
+                bindingSweetTwoFactorAuth.tvResendCode.setTextColor(
+                    resources.getColor(
+                        R.color.white,
+                        theme
+                    )
                 )
 
-                this.runOnUiThread {
-                    ManagerCallback.onSuccessSweetLoading("Mail sent successfully")
+                val currentCode = ManagerCallback.onGenerateTokenCode()
+                setConfirmListener(response, currentCode)
+
+                bindingSweetTwoFactorAuth.tvResendCode.setOnClickListener {
+                    val newCode = ManagerCallback.onGenerateTokenCode()
+                    setConfirmListener(response, newCode)
+                    ManagerCallback.sendVerificationCode(
+                        this@Login,
+                        response.body()!!.user,
+                        "Log In verification code",
+                        newCode
+                    )
+                    countDownTimer(response)
                 }
-
-            } catch (e: Exception) {
-                Log.d("SendEmail", e.message.toString())
             }
-        }).start()
 
-        return code
+        }
+        countDownTimer.start()
     }
+
 
     private fun clearEditText() {
         binding.etEmail.setText("")

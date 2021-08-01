@@ -31,7 +31,7 @@ class TodoCallback {
         fun onShowed(context: Context, id: Int) {
             ManagerCallback.onStartSweetLoading(
                 context,
-                "Load todo id : ${ManagerCallback.hashTagNumber(id)}"
+                "Load todo id : ${ManagerCallback.onTagNumber(id)}"
             )
             RestfulAPIService.requestMethod().editTodo(id).enqueue(object :
                 Callback<RestfulAPIResponse> {

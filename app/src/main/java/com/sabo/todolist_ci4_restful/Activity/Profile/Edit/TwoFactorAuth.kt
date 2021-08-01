@@ -1,6 +1,5 @@
 package com.sabo.todolist_ci4_restful.Activity.Profile.Edit
 
-import android.app.Activity
 import android.content.Context
 import android.os.CountDownTimer
 import android.text.Editable
@@ -13,8 +12,6 @@ import android.widget.Button
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Activity.Profile.ProfileCallback
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
-import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.Credentials
-import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.GMailSender
 import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
 import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIResponse
@@ -104,9 +101,14 @@ class TwoFactorAuth {
                         if (response.isSuccessful) {
                             when (response.body()!!.code) {
                                 200 -> {
-                                    val code = ManagerCallback.generateTokenCode()
+                                    val code = ManagerCallback.onGenerateTokenCode()
                                     changeLayout(context, user, code)
-                                    sendVerificationCode(context, user, code)
+                                    ManagerCallback.sendVerificationCode(
+                                        context,
+                                        user,
+                                        "Two Factor Authentication verification code",
+                                        code
+                                    )
                                     countDownTimer(context, user)
                                 }
                                 400 -> {
@@ -116,7 +118,8 @@ class TwoFactorAuth {
                             }
                         } else {
                             if (response.message().contains("Not Found"))
-                                binding.tilCurrentPassword.error = "Your current password was wrong."
+                                binding.tilCurrentPassword.error =
+                                    "Your current password was wrong."
                             else
                                 ManagerCallback.onSweetAlertDialogWarning(
                                     context,
@@ -125,12 +128,12 @@ class TwoFactorAuth {
                         }
 
                         binding.progressBar.visibility = View.GONE
-                        Log.d("reAuth-TwoFactorAuth", response.body().toString())
+                        ManagerCallback.onLog("reAuth_TwoFactorAuth", "$response", "${response.body()}")
                     }
 
                     override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                         binding.progressBar.visibility = View.GONE
-                        Log.d("reAuth-TwoFactorAuth", t.message!!)
+                        ManagerCallback.onLog("reAuth_TwoFactorAuth", "${t.message}")
                         ManagerCallback.onSweetAlertDialogWarning(
                             context,
                             "Something Wrong with server connection."
@@ -151,13 +154,15 @@ class TwoFactorAuth {
                         binding.tvSubtitle.text =
                             "Enter the verification code to disable two factor authentication."
                         sweetAlertDialog.confirmText = "Disable"
-                        sweetAlertDialog.findViewById<Button>(R.id.confirm_button).setBackgroundResource(R.drawable.red_button_background)
+                        sweetAlertDialog.findViewById<Button>(R.id.confirm_button)
+                            .setBackgroundResource(R.drawable.red_button_background)
                     }
                     1 -> {
                         binding.tvSubtitle.text =
                             "Enter the verification code to enable two factor authentication."
                         sweetAlertDialog.confirmText = "Enable"
-                        sweetAlertDialog.findViewById<Button>(R.id.confirm_button).setBackgroundResource(R.drawable.confirm_button_background)
+                        sweetAlertDialog.findViewById<Button>(R.id.confirm_button)
+                            .setBackgroundResource(R.drawable.confirm_button_background)
                     }
                 }
 
@@ -181,33 +186,6 @@ class TwoFactorAuth {
                     countDownTimer.cancel()
                 }
             }
-        }
-
-        private fun sendVerificationCode(context: Context, user: User, code: String) {
-            ManagerCallback.onStartSweetLoading(context, "Code sent")
-
-            Thread(Runnable {
-                try {
-                    val sender =
-                        GMailSender(
-                            Credentials.EMAIL_SENDER,
-                            Credentials.PASSWORD_SENDER
-                        )
-                    sender.sendMail(
-                        "Two Factor Authentication Verification Code",
-                        "Code : $code",
-                        "${Credentials.EMAIL_SENDER}",
-                        "${user.email}"
-                    )
-
-                    (context as Activity).runOnUiThread {
-                        ManagerCallback.onSuccessSweetLoading("Mail sent successfully")
-                    }
-
-                } catch (e: Exception) {
-                    Log.d("SendEmail", e.message.toString())
-                }
-            }).start()
         }
 
         private fun countDownTimer(context: Context, user: User) {
@@ -236,13 +214,18 @@ class TwoFactorAuth {
                         )
                     )
 
-                    val currentCode = ManagerCallback.generateTokenCode()
+                    val currentCode = ManagerCallback.onGenerateTokenCode()
                     changeLayout(context, user, currentCode)
 
                     binding.tvResendCode.setOnClickListener {
-                        val newCode = ManagerCallback.generateTokenCode()
+                        val newCode = ManagerCallback.onGenerateTokenCode()
                         changeLayout(context, user, newCode)
-                        sendVerificationCode(context, user, newCode)
+                        ManagerCallback.sendVerificationCode(
+                            context,
+                            user,
+                            "Two Factor Authentication verification code",
+                            newCode
+                        )
                         countDownTimer(context, user)
                     }
                 }

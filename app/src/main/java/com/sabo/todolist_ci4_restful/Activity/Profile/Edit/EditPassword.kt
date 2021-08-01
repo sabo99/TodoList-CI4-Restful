@@ -107,16 +107,16 @@ class EditPassword {
                     }
 
                     binding.progressBar.visibility = View.GONE
-                    Log.d("reAuth-EditPassword", response.body().toString())
+                    ManagerCallback.onLog("reAuth_Pass", "$response", "${response.body()}")
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.progressBar.visibility = View.GONE
-                    Log.d("reAuth-EditPassword", t.message!!)
                     ManagerCallback.onSweetAlertDialogWarning(
                         context,
                         "Can't Change Password.\nSomething Wrong with server connection."
                     )
+                    ManagerCallback.onLog("reAuth_Pass", "${t.message}")
                 }
             })
         }

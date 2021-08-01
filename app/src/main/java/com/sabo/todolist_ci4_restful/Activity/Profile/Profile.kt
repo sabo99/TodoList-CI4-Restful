@@ -2,8 +2,8 @@ package com.sabo.todolist_ci4_restful.Activity.Profile
 
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
@@ -32,7 +32,6 @@ class Profile : AppCompatActivity() {
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         initViews()
     }
 
@@ -58,10 +57,13 @@ class Profile : AppCompatActivity() {
     }
 
     private fun initViews() {
+        isEnabledBtn(false)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.title = "My Account"
 
         val uid = ManagerPreferences.getUID(this)
+
+        binding.progressBar.visibility = View.VISIBLE
 
         RestfulAPIService.requestMethod().showUser(uid)
             .enqueue(object : Callback<RestfulAPIResponse> {
@@ -76,32 +78,42 @@ class Profile : AppCompatActivity() {
                                 R.drawable.ic_round_person_black
                             ).into(binding.civAvatar)
 
-                        binding.tvProfileUsername.text =
-                            "${user.username}\n${ManagerCallback.hashTagNumber(user.uid)}"
-                        binding.tvUsername.text =
-                            "${user.username}${ManagerCallback.hashTagNumber(user.uid)}"
+                        val username = StringBuilder().append(user.username).append("\n")
+                            .append(ManagerCallback.onTagNumber(user.uid)).toString()
+                        binding.tvProfileUsername.text = username
+                        binding.tvUsername.text = username
                         binding.tvEmail.text = user.email
 
-                        if (user.two_factor_auth == 0){
+                        if (user.two_factor_auth == 0) {
                             binding.btnTwoFactorAuth.text = "Enable Two-Factor Auth"
-                            binding.btnTwoFactorAuth.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.royal_blue, theme))
-                        }
-                        else {
+                            binding.btnTwoFactorAuth.backgroundTintList = ColorStateList.valueOf(
+                                resources.getColor(
+                                    R.color.royal_blue,
+                                    theme
+                                )
+                            )
+                        } else {
                             binding.btnTwoFactorAuth.text = "Disable Two-Factor Auth"
-                            binding.btnTwoFactorAuth.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.red, theme))
+                            binding.btnTwoFactorAuth.backgroundTintList =
+                                ColorStateList.valueOf(resources.getColor(R.color.red, theme))
                         }
-                    }
-                    else {
+
+                        isEnabledBtn(true)
+                    } else {
+                        isEnabledBtn(false)
                         ManagerCallback.onSweetAlertDialogWarning(
                             this@Profile,
                             "Something wrong with server connection",
                         )
                     }
-                    Log.d("profile", response.body().toString())
+                    binding.progressBar.visibility = View.GONE
+                    ManagerCallback.onLog("Profile", "$response", "${response.body()}")
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                    Log.d("profile", t.message!!)
+                    binding.progressBar.visibility = View.GONE
+                    isEnabledBtn(false)
+                    ManagerCallback.onLog("Profile", "${t.message}")
                 }
             })
 
@@ -134,5 +146,16 @@ class Profile : AppCompatActivity() {
             ProfileCallback.onLogout(this)
         }
     }
+
+    private fun isEnabledBtn(isEnabled: Boolean) {
+        binding.btnEditProfile.isEnabled = isEnabled
+        binding.btnEditUsername.isEnabled = isEnabled
+        binding.btnEditEmail.isEnabled = isEnabled
+        binding.btnChangePassword.isEnabled = isEnabled
+        binding.btnTwoFactorAuth.isEnabled = isEnabled
+        binding.btnDeleteAccount.isEnabled = isEnabled
+        binding.btnLogout.isEnabled = isEnabled
+    }
+
 }
 

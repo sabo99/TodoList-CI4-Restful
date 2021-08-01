@@ -3,8 +3,6 @@ package com.sabo.todolist_ci4_restful.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,7 +17,6 @@ import com.sabo.todolist_ci4_restful.Helper.Adapter.TodoListAdapter
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
-import com.sabo.todolist_ci4_restful.Model.Todo
 import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
 import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIResponse
@@ -35,7 +32,6 @@ import retrofit2.Response
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var sweetAlertDialog: SweetAlertDialog
     private lateinit var user: User
     private var uid = 0
     private var isEnableMenuItem = false
@@ -49,6 +45,10 @@ class MainActivity : AppCompatActivity() {
         initViews()
 
         binding.swipeRefresh.setOnRefreshListener {
+            binding.lottieEmptyTodoList.visibility = View.GONE
+            binding.lottieInternalServerError.visibility = View.GONE
+            binding.lottieNoInternetAccess.visibility = View.GONE
+
             binding.shimmerLayout.visibility = View.VISIBLE
             binding.rvTodoList.visibility = View.GONE
             binding.shimmerLayout.startShimmer()
@@ -94,7 +94,6 @@ class MainActivity : AppCompatActivity() {
             )
             return false
         }
-
         return true
     }
 
@@ -113,7 +112,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun loadTodoList() {
-
         RestfulAPIService.requestMethod().showTodo(uid)
             .enqueue(object : Callback<RestfulAPIResponse> {
                 override fun onResponse(
@@ -121,27 +119,58 @@ class MainActivity : AppCompatActivity() {
                     response: Response<RestfulAPIResponse>
                 ) {
                     if (response.isSuccessful) {
-                        binding.rvTodoList.adapter =
-                            TodoListAdapter(this@MainActivity, response.body()!!.todoList)
-                        binding.rvTodoList.visibility = View.VISIBLE
+                        if (response.body()!!.todoList.isNotEmpty()) {
+                            binding.rvTodoList.adapter =
+                                TodoListAdapter(this@MainActivity, response.body()!!.todoList)
+                            binding.rvTodoList.visibility = View.VISIBLE
+                            binding.lottieEmptyTodoList.visibility = View.GONE
+                            binding.lottieInternalServerError.visibility = View.GONE
+                            binding.lottieNoInternetAccess.visibility = View.GONE
+                        } else {
+                            binding.rvTodoList.visibility = View.GONE
+                            binding.lottieEmptyTodoList.visibility = View.VISIBLE
+                            binding.lottieInternalServerError.visibility = View.GONE
+                            binding.lottieNoInternetAccess.visibility = View.GONE
+                        }
+
                     } else {
+                        /** Internal Server Error (500)
+                         * MySQL Shutdown
+                         */
                         binding.rvTodoList.visibility = View.GONE
+                        binding.lottieEmptyTodoList.visibility = View.GONE
+                        binding.lottieInternalServerError.visibility = View.VISIBLE
+                        binding.lottieNoInternetAccess.visibility = View.GONE
                     }
                     binding.shimmerLayout.visibility = View.GONE
                     binding.fabAdd.show()
 
-                    Log.d("todoList", response.body().toString())
+                    ManagerCallback.onLog("showTodo", "$response", "${response.body()}")
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                    Log.d("todoList", t.message!!)
                     binding.shimmerLayout.visibility = View.GONE
                     binding.fabAdd.show()
 
-                    ManagerCallback.onSweetAlertDialogWarning(
-                        this@MainActivity,
-                        "Something wrong with server connection",
-                    )
+                    if (t.message!!.contains("after 10000ms")) {
+                        /** Loss Connection
+                         * Apache Shutdown
+                         */
+                        binding.rvTodoList.visibility = View.GONE
+                        binding.lottieEmptyTodoList.visibility = View.GONE
+                        binding.lottieInternalServerError.visibility = View.VISIBLE
+                        binding.lottieNoInternetAccess.visibility = View.GONE
+                    } else {
+                        /** Loss Connection
+                         * No Internet Access
+                         */
+                        binding.rvTodoList.visibility = View.GONE
+                        binding.lottieEmptyTodoList.visibility = View.GONE
+                        binding.lottieInternalServerError.visibility = View.GONE
+                        binding.lottieNoInternetAccess.visibility = View.VISIBLE
+                    }
+
+                    ManagerCallback.onLog("showTodo", "${t.message}")
                 }
             })
 
@@ -152,40 +181,38 @@ class MainActivity : AppCompatActivity() {
                 response: Response<RestfulAPIResponse>
             ) {
                 if (response.isSuccessful) {
-                    /** Nothing */
-                    user = response.body()!!.user
-
-
-                } else {
-                    val sweet = SweetAlertDialog(this@MainActivity, SweetAlertDialog.WARNING_TYPE)
-                    sweet.titleText = "Oops!"
-                    sweet.contentText = "Your account has been deleted from the database."
-                    sweet.setConfirmClickListener {
-                        ManagerPreferences.clearUserPreferences(this@MainActivity)
-                        startActivity(Intent(this@MainActivity, Login::class.java))
-                        finish()
+                    if (response.body()!!.user != null)
+                        user = response.body()!!.user
+                    else {
+                        val sweet =
+                            SweetAlertDialog(this@MainActivity, SweetAlertDialog.WARNING_TYPE)
+                        sweet.titleText = "Oops!"
+                        sweet.contentText = "Your account has been deleted from the database."
+                        sweet.setConfirmClickListener {
+                            ManagerPreferences.clearUserPreferences(this@MainActivity)
+                            startActivity(Intent(this@MainActivity, Login::class.java))
+                            finish()
+                        }
+                        sweet.show()
+                        ManagerCallback.initCustomSweetAlertDialog(this@MainActivity, null, sweet)
                     }
-                    sweet.show()
-                    ManagerCallback.initCustomSweetAlertDialog(this@MainActivity, null, sweet)
-
                 }
-                Log.d("user", response.body().toString())
                 isEnableMenuItem = true
                 isVisibleMenuItem = true
                 invalidateOptionsMenu()
+                ManagerCallback.onLog("showUser", "$response", "${response.body()}")
             }
 
             override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                Log.d("user", t.message!!)
                 if (t.message!!.contains("failed to connect")) {
                     isEnableMenuItem = false
                     isVisibleMenuItem = true
                     invalidateOptionsMenu()
                 }
+                ManagerCallback.onLog("showUser", "${t.message}")
             }
         })
     }
-
 
 
     override fun onStart() {

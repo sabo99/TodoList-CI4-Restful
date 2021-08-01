@@ -2,11 +2,9 @@ package com.sabo.todolist_ci4_restful.Activity.Auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -36,7 +34,7 @@ class SignUp : AppCompatActivity() {
 
     private fun initViews() {
 
-        binding.tvLogin.text = ManagerCallback.generateTextViewButton(this, false)
+        binding.tvLogin.text = ManagerCallback.onGenerateTextViewButton(this, false)
 
         binding.tvLogin.setOnClickListener {
             finish()
@@ -114,18 +112,20 @@ class SignUp : AppCompatActivity() {
 
                             binding.progressBar.visibility = View.GONE
                             binding.btnSignUp.isEnabled = true
+                            ManagerCallback.onLog("SignUp", "$response", "${response.body()}")
                         }
 
                         override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                            Log.d("reponse", t.message!!)
+                            binding.progressBar.visibility = View.GONE
+                            binding.btnSignUp.isEnabled = true
+
                             Toast.makeText(
                                 this@SignUp,
                                 t.message!!,
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            binding.progressBar.visibility = View.GONE
-                            binding.btnSignUp.isEnabled = true
+                            ManagerCallback.onLog("SignUp", "${t.message}")
                         }
                     })
         }

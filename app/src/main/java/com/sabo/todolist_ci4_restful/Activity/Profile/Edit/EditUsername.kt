@@ -37,7 +37,7 @@ class EditUsername {
             sweetAlertDialog.setOnShowListener {
                 binding.ibClose.setOnClickListener { onClose() }
 
-                binding.tilUsername.suffixText = ManagerCallback.hashTagNumber(user.uid)
+                binding.tilUsername.suffixText = ManagerCallback.onTagNumber(user.uid)
                 binding.etUsername.setText(user.username)
                 onTextWatcher()
             }
@@ -94,16 +94,16 @@ class EditUsername {
                     }
 
                     binding.progressBar.visibility = View.GONE
-                    Log.d("reAuth-EditUsername", response.body().toString())
+                    ManagerCallback.onLog("reAuth_Username", "$response", "${response.body()}")
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.progressBar.visibility = View.GONE
-                    Log.d("reAuth-EditUsername", t.message!!)
                     ManagerCallback.onSweetAlertDialogWarning(
                         context,
                        "Can't Change Username.\nSomething Wrong with server connection."
                     )
+                    ManagerCallback.onLog("reAuth_Username", "${t.message}")
                 }
 
             })

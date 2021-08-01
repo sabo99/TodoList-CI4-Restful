@@ -6,9 +6,7 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.format.DateFormat
 import android.text.format.DateUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -45,7 +43,8 @@ class ForgotPassword {
 
             LAYOUT_KEY = LAYOUT_EMAIL
 
-            val view = LayoutInflater.from(context).inflate(R.layout.sweet_alert_dialog_forgot_password, null)
+            val view = LayoutInflater.from(context)
+                .inflate(R.layout.sweet_alert_dialog_forgot_password, null)
             sweetAlertDialog = SweetAlertDialog(context, SweetAlertDialog.NORMAL_TYPE)
             binding = SweetAlertDialogForgotPasswordBinding.bind(view)
 
@@ -155,9 +154,14 @@ class ForgotPassword {
                         when (response.body()!!.code) {
                             200 -> {
                                 val user = response.body()!!.user
-                                val code = ManagerCallback.generateTokenCode()
+                                val code = ManagerCallback.onGenerateTokenCode()
                                 changeLayoutPassword(context, user, code)
-                                sendVerificationCode(context, user, code)
+                                ManagerCallback.sendVerificationCode(
+                                    context,
+                                    user,
+                                    "Email verification code",
+                                    code
+                                )
                                 countDownTimer(context, user)
                             }
                             400 -> {
@@ -169,13 +173,13 @@ class ForgotPassword {
                     } else
                         binding.tilEmail.error = "Your email is not registered."
 
-                    Log.d("checkEmail-Forgot", response.message())
                     binding.progressBar.visibility = View.GONE
+                    ManagerCallback.onLog("forgotPassword", "$response", "${response.body()}")
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.progressBar.visibility = View.GONE
-                    Log.d("checkEmail-Forgot", t.message!!)
+                    ManagerCallback.onLog("forgotPassword", "${t.message}")
                 }
             })
         }
@@ -237,49 +241,23 @@ class ForgotPassword {
                                     .show()
                             }
                             binding.progressBar.visibility = View.GONE
+                            ManagerCallback.onLog("updateUser", "$response", "${response.body()}")
                         }
 
                         override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                            Toast.makeText(context, t.message!!, Toast.LENGTH_SHORT).show()
                             binding.progressBar.visibility = View.GONE
+                            Toast.makeText(context, t.message!!, Toast.LENGTH_SHORT).show()
+                            ManagerCallback.onLog("updateUser", "${t.message}")
                         }
                     })
         }
 
-
-        private fun sendVerificationCode(context: Context, user: User, code: String) {
-            ManagerCallback.onStartSweetLoading(context, "Code sent")
-
-
-            Thread(Runnable {
-                try {
-                    val sender =
-                        GMailSender(
-                            Credentials.EMAIL_SENDER,
-                            Credentials.PASSWORD_SENDER
-                        )
-                    sender.sendMail(
-                        "Email Verification Code",
-                        "Code : $code",
-                        "${Credentials.EMAIL_SENDER}",
-                        "${user.email}"
-                    )
-
-                    (context as Activity).runOnUiThread {
-                        ManagerCallback.onSuccessSweetLoading("Mail sent successfully")
-                    }
-
-                } catch (e: Exception) {
-                    Log.d("SendEmail", e.message.toString())
-                }
-            }).start()
-        }
-
         private fun countDownTimer(context: Context, user: User) {
-            countDownTimer=  object : CountDownTimer(DELAY, INTERVAL) {
+            countDownTimer = object : CountDownTimer(DELAY, INTERVAL) {
                 override fun onTick(millisUntilFinished: Long) {
                     binding.tvResendCode.isEnabled = false
-                    val minutes = DateUtils.formatElapsedTime(millisUntilFinished.div(INTERVAL)).replace(".", ":")
+                    val minutes = DateUtils.formatElapsedTime(millisUntilFinished.div(INTERVAL))
+                        .replace(".", ":")
 
                     binding.tvResendCode.text =
                         "Code verification resend in ... $minutes"
@@ -302,13 +280,18 @@ class ForgotPassword {
                         )
                     )
 
-                    val currentCode = ManagerCallback.generateTokenCode()
+                    val currentCode = ManagerCallback.onGenerateTokenCode()
                     changeLayoutPassword(context, user, currentCode)
 
                     binding.tvResendCode.setOnClickListener {
-                        val newCode = ManagerCallback.generateTokenCode()
+                        val newCode = ManagerCallback.onGenerateTokenCode()
                         changeLayoutPassword(context, user, newCode)
-                        sendVerificationCode(context, user, newCode)
+                        ManagerCallback.sendVerificationCode(
+                            context,
+                            user,
+                            "Email verification code",
+                            newCode
+                        )
                         countDownTimer(context, user)
                     }
                 }

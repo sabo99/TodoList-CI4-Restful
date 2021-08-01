@@ -159,13 +159,13 @@ class EditProfile : AppCompatActivity() {
                         }
                     } else
                         ManagerCallback.onFailureSweetLoading(response.message())
+                    ManagerCallback.onLog("uploadAvatar", "$response", "${response.body()}")
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     ManagerCallback.onFailureSweetLoading("Something wrong with server connection")
+                    ManagerCallback.onLog("uploadAvatar", "${t.message}")
                 }
             })
     }
-
-
 }

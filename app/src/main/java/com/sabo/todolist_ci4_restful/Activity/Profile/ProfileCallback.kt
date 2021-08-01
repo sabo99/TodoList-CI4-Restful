@@ -158,17 +158,15 @@ class ProfileCallback {
                                 } else
                                     ManagerCallback.onFailureSweetLoading(response.message())
 
-                                Log.d("updateUser", response.body()!!.toString())
+                                ManagerCallback.onLog("updateUser", "$response", "${response.body()}")
                             }
 
                             override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                                 ManagerCallback.onFailureSweetLoading("Can't Update User.\nSomething wrong with server connection")
-                                Log.d("updateUser", t.message!!)
+                                ManagerCallback.onLog("updateUser", "${t.message}")
                             }
                         })
             }, 2000)
-
-
         }
 
 
@@ -232,7 +230,7 @@ class ProfileCallback {
                         } else {
                             ManagerCallback.onFailureSweetLoading(response.message())
                         }
-                        Log.d("deleteAllTodoList", response.body().toString())
+                        ManagerCallback.onLog("deleteAllTodo", "$response", "${response.body()}")
                     }
 
                     override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {

@@ -68,4 +68,6 @@
     <string name="action_change_avatar">Change Avatar</string>
     <string name="customizing_my_profile">Customizing My Profile</string>
     <string name="subtitle_enable_two">Enter the verification code to enable two factor auth.</string>
+    <string name="title_internal_server_error">Internal\nServer Error</string>
+    <string name="subtitle_internal_server_error">The server encountered an error and \ncould not complete your request.</string>
 </resources>

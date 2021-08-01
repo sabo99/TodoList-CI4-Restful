@@ -93,16 +93,16 @@ class EditEmail {
                         binding.progressBar.visibility = View.GONE
                     }
 
-                    Log.d("reAuth-EditEmail", response.body().toString())
+                    ManagerCallback.onLog("reAuth_Email", "$response", "${response.body()}")
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.progressBar.visibility = View.GONE
-                    Log.d("reAuth-EditEmail", t.message!!)
                     ManagerCallback.onSweetAlertDialogWarning(
                         context,
                         "Can't Change Email.\nSomething Wrong with server connection."
                     )
+                    ManagerCallback.onLog("reAuth_Email", "${t.message}")
                 }
             })
         }
@@ -130,15 +130,15 @@ class EditEmail {
                     } else
                         ManagerCallback.onSweetAlertDialogWarning(context, response.message())
 
-                    Log.d("checkEmail-EditEmail", response.body().toString())
-
                     binding.progressBar.visibility = View.GONE
+                    ManagerCallback.onLog("checkEmail", "$response", "${response.body()}")
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.progressBar.visibility = View.GONE
                     Log.d("checkEmail-EditEmail", t.message!!)
                     ManagerCallback.onSweetAlertDialogWarning(context, t.message!!)
+                    ManagerCallback.onLog("checkEmail", "${t.message}")
                 }
             })
         }

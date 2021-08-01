@@ -1,13 +1,18 @@
 package com.sabo.todolist_ci4_restful.Helper.Callback
 
+import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.text.Html.fromHtml
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
+import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.Credentials
+import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.GMailSender
+import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
 import java.util.*
 import kotlin.math.abs
@@ -103,7 +108,7 @@ class ManagerCallback {
         }
 
 
-        fun hashTagNumber(integer: Int): String {
+        fun onTagNumber(integer: Int): String {
             return when (integer.toString().length) {
                 1 -> "#000$integer"
                 2 -> "#00$integer"
@@ -112,7 +117,7 @@ class ManagerCallback {
             }
         }
 
-        fun generateTokenCode(): String {
+        fun onGenerateTokenCode(): String {
             val value = StringBuilder()
                 .append(System.currentTimeMillis())
                 /** Get current time in millisecond  */
@@ -127,7 +132,7 @@ class ManagerCallback {
             return "$result".reversed()
         }
 
-        fun generateTextViewButton(context: Context, isLogin: Boolean): CharSequence? {
+        fun onGenerateTextViewButton(context: Context, isLogin: Boolean): CharSequence? {
 
             val login = "<font color='${
                 context.resources.getColor(R.color.white_45, context.theme)
@@ -148,5 +153,42 @@ class ManagerCallback {
                 }
             }
         }
+
+        fun sendVerificationCode(context: Context, user: User, subject: String, code: String){
+            onStartSweetLoading(context, "Code sent")
+
+            Thread(Runnable {
+                try {
+                    val sender =
+                        GMailSender(
+                            Credentials.EMAIL_SENDER,
+                            Credentials.PASSWORD_SENDER
+                        )
+                    sender.sendMail(
+                        "$subject : $code",
+                        "This code will expire in 2 minutes.",
+                        "${Credentials.EMAIL_SENDER}",
+                        "${user.email}"
+                    )
+
+                    (context as Activity).runOnUiThread {
+                        onSuccessSweetLoading("Mail sent successfully")
+                    }
+
+                } catch (e: Exception) {
+                    onLog("SendEmail", "${e.message}")
+                }
+            }).start()
+        }
+
+        fun onLog(tag: String, response: String, body: String) {
+            Log.d(tag, response)
+            Log.d(tag, body)
+        }
+
+        fun onLog(tag: String, message: String) {
+            Log.d(tag, message)
+        }
+
     }
 }
