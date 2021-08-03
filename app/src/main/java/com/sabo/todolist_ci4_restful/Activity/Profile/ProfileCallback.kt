@@ -140,7 +140,7 @@ class ProfileCallback {
 
                                             ManagerCallback.onSuccessSweetLoading(message)
                                             EventBus.getDefault()
-                                                .postSticky(EventOnRefresh(true, ""))
+                                                .postSticky(EventOnRefresh(true, null))
                                             sweetAlertDialog.dismissWithAnimation()
                                         }
 

@@ -145,7 +145,7 @@ class EditProfile : AppCompatActivity() {
                         when (response.body()!!.code) {
                             200 -> {
                                 ManagerCallback.onStopSweetLoading()
-                                EventBus.getDefault().postSticky(EventOnRefresh(true, ""))
+                                EventBus.getDefault().postSticky(EventOnRefresh(true, null))
                                 Toast.makeText(
                                     this@EditProfile,
                                     response.message(),

@@ -3,7 +3,6 @@ package com.sabo.todolist_ci4_restful.Activity.Profile.Edit
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
@@ -88,12 +87,12 @@ class EditPassword {
                                     )
                             }
                             400 -> {
-                                val error = response.body()!!.errorValidation
+                                val errorPassword = response.body()!!.errorValidation.password
 
                                 if (binding.etCurrentPassword.text.toString().isEmpty())
-                                    binding.tilCurrentPassword.error = error.password
+                                    binding.tilCurrentPassword.error = errorPassword
                                 if (binding.etNewPassword.text.toString().isEmpty())
-                                    binding.tilNewPassword.error = error.password
+                                    binding.tilNewPassword.error = errorPassword
                             }
                         }
                     } else {
@@ -114,7 +113,7 @@ class EditPassword {
                     binding.progressBar.visibility = View.GONE
                     ManagerCallback.onSweetAlertDialogWarning(
                         context,
-                        "Can't Change Password.\nSomething Wrong with server connection."
+                        "Can't Change Password.\nSomething Wrong with server connection"
                     )
                     ManagerCallback.onLog("reAuth_Pass", "${t.message}")
                 }

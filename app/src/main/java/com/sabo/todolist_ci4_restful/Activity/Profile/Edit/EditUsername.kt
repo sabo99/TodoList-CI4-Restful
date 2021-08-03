@@ -3,7 +3,6 @@ package com.sabo.todolist_ci4_restful.Activity.Profile.Edit
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
@@ -75,13 +74,14 @@ class EditUsername {
                 ) {
                     if (response.isSuccessful) {
                         when (response.body()!!.code) {
-                            200 -> {
-                                ProfileCallback.onUpdateValues(context, sweetAlertDialog, user, ProfileCallback.KEY_USERNAME)
-                            }
-                            400 -> {
-                                val errors = response.body()!!.errorValidation
-                                binding.tilCurrentPassword.error = errors.password
-                            }
+                            200 -> ProfileCallback.onUpdateValues(
+                                context,
+                                sweetAlertDialog,
+                                user,
+                                ProfileCallback.KEY_USERNAME
+                            )
+                            400 -> binding.tilCurrentPassword.error =
+                                response.body()!!.errorValidation.password
                         }
                     } else {
                         if (response.message().contains("Not Found"))
@@ -101,7 +101,7 @@ class EditUsername {
                     binding.progressBar.visibility = View.GONE
                     ManagerCallback.onSweetAlertDialogWarning(
                         context,
-                       "Can't Change Username.\nSomething Wrong with server connection."
+                        "Can't Change Username.\nSomething Wrong with server connection"
                     )
                     ManagerCallback.onLog("reAuth_Username", "${t.message}")
                 }

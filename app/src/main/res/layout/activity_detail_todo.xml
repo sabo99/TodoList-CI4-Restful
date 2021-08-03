@@ -24,7 +24,6 @@
             android:background="@drawable/sweet_alert_dialog_background"
             android:padding="10dp">
 
-
             <ImageView
                 android:id="@+id/ivImage"
                 android:layout_width="match_parent"
@@ -64,6 +63,18 @@
                 android:textColor="@color/white_70"
                 app:layout_constraintTop_toBottomOf="@id/textView" />
 
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/white_70"
+                android:gravity="center"
+                android:text="@string/hint_date"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDesc" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

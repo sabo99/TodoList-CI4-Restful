@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         binding.swipeRefresh.setOnRefreshListener {
             binding.lottieEmptyTodoList.visibility = View.GONE
             binding.lottieInternalServerError.visibility = View.GONE
-            binding.lottieNoInternetAccess.visibility = View.GONE
 
             binding.shimmerLayout.visibility = View.VISIBLE
             binding.rvTodoList.visibility = View.GONE
@@ -125,12 +124,10 @@ class MainActivity : AppCompatActivity() {
                             binding.rvTodoList.visibility = View.VISIBLE
                             binding.lottieEmptyTodoList.visibility = View.GONE
                             binding.lottieInternalServerError.visibility = View.GONE
-                            binding.lottieNoInternetAccess.visibility = View.GONE
                         } else {
                             binding.rvTodoList.visibility = View.GONE
                             binding.lottieEmptyTodoList.visibility = View.VISIBLE
                             binding.lottieInternalServerError.visibility = View.GONE
-                            binding.lottieNoInternetAccess.visibility = View.GONE
                         }
 
                     } else {
@@ -140,7 +137,6 @@ class MainActivity : AppCompatActivity() {
                         binding.rvTodoList.visibility = View.GONE
                         binding.lottieEmptyTodoList.visibility = View.GONE
                         binding.lottieInternalServerError.visibility = View.VISIBLE
-                        binding.lottieNoInternetAccess.visibility = View.GONE
                     }
                     binding.shimmerLayout.visibility = View.GONE
                     binding.fabAdd.show()
@@ -152,23 +148,9 @@ class MainActivity : AppCompatActivity() {
                     binding.shimmerLayout.visibility = View.GONE
                     binding.fabAdd.show()
 
-                    if (t.message!!.contains("after 10000ms")) {
-                        /** Loss Connection
-                         * Apache Shutdown
-                         */
-                        binding.rvTodoList.visibility = View.GONE
-                        binding.lottieEmptyTodoList.visibility = View.GONE
-                        binding.lottieInternalServerError.visibility = View.VISIBLE
-                        binding.lottieNoInternetAccess.visibility = View.GONE
-                    } else {
-                        /** Loss Connection
-                         * No Internet Access
-                         */
-                        binding.rvTodoList.visibility = View.GONE
-                        binding.lottieEmptyTodoList.visibility = View.GONE
-                        binding.lottieInternalServerError.visibility = View.GONE
-                        binding.lottieNoInternetAccess.visibility = View.VISIBLE
-                    }
+                    binding.rvTodoList.visibility = View.GONE
+                    binding.lottieEmptyTodoList.visibility = View.GONE
+                    binding.lottieInternalServerError.visibility = View.VISIBLE
 
                     ManagerCallback.onLog("showTodo", "${t.message}")
                 }
@@ -181,7 +163,7 @@ class MainActivity : AppCompatActivity() {
                 response: Response<RestfulAPIResponse>
             ) {
                 if (response.isSuccessful) {
-                    if (response.body()!!.user != null)
+                    if (response.body()?.user != null)
                         user = response.body()!!.user
                     else {
                         val sweet =

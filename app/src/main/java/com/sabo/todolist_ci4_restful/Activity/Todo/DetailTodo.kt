@@ -35,7 +35,7 @@ class DetailTodo : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        EventBus.getDefault().postSticky(EventOnRefresh(true, ""))
+        EventBus.getDefault().postSticky(EventOnRefresh(true, null))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -57,6 +57,10 @@ class DetailTodo : AppCompatActivity() {
         Picasso.get().load(TodoCallback.getURLImage(todo.image)).into(binding.ivImage)
         binding.tvTitle.text = todo.title
         binding.tvDesc.text = todo.desc
+        if (todo.updated_at == null)
+            binding.tvDate.text = "Last update ${todo.created_at}"
+        else
+            binding.tvDate.text = "Last update ${todo.updated_at}"
     }
 
     override fun onStart() {

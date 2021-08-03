@@ -1,6 +1,5 @@
 package com.sabo.todolist_ci4_restful.Activity.Auth
 
-import android.app.Activity
 import android.content.Context
 import android.os.CountDownTimer
 import android.os.Handler
@@ -12,8 +11,6 @@ import android.view.View
 import android.widget.Toast
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
-import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.Credentials
-import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.GMailSender
 import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
 import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIResponse
@@ -164,10 +161,7 @@ class ForgotPassword {
                                 )
                                 countDownTimer(context, user)
                             }
-                            400 -> {
-                                val error = response.body()!!.errorValidation
-                                binding.tilEmail.error = error.email
-                            }
+                            400 -> binding.tilEmail.error = response.body()!!.errorValidation.email
                         }
 
                     } else
@@ -200,10 +194,9 @@ class ForgotPassword {
                     if (newPassword.isEmpty()) {
                         binding.tilNewPassword.error = "The password is required."
                     } else {
-                        if (inputCode != code) {
-                            Toast.makeText(context, "Code is wrong!", Toast.LENGTH_SHORT).show()
+                        if (inputCode != code)
                             binding.tilVerificationCode.error = "Your verification code is wrong."
-                        } else {
+                        else {
                             countDownTimer.cancel()
                             binding.progressBar.visibility = View.VISIBLE
                             Handler().postDelayed({

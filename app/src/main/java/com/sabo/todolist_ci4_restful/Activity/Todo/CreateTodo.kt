@@ -192,7 +192,7 @@ class CreateTodo : AppCompatActivity() {
                                                     Toast.LENGTH_SHORT
                                                 ).show()
                                                 EventBus.getDefault()
-                                                    .postSticky(EventOnRefresh(true, ""))
+                                                    .postSticky(EventOnRefresh(true, null))
                                                 ManagerCallback.onStopSweetLoading()
                                             }, 2000)
                                         }

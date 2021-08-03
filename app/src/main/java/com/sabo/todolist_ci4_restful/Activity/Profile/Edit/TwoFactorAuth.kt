@@ -5,7 +5,6 @@ import android.os.CountDownTimer
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
@@ -111,10 +110,8 @@ class TwoFactorAuth {
                                     )
                                     countDownTimer(context, user)
                                 }
-                                400 -> {
-                                    val error = response.body()!!.errorValidation
-                                    binding.tilCurrentPassword.error = error.password
-                                }
+                                400 -> binding.tilCurrentPassword.error =
+                                    response.body()!!.errorValidation.password
                             }
                         } else {
                             if (response.message().contains("Not Found"))
@@ -128,7 +125,11 @@ class TwoFactorAuth {
                         }
 
                         binding.progressBar.visibility = View.GONE
-                        ManagerCallback.onLog("reAuth_TwoFactorAuth", "$response", "${response.body()}")
+                        ManagerCallback.onLog(
+                            "reAuth_TwoFactorAuth",
+                            "$response",
+                            "${response.body()}"
+                        )
                     }
 
                     override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
@@ -136,7 +137,7 @@ class TwoFactorAuth {
                         ManagerCallback.onLog("reAuth_TwoFactorAuth", "${t.message}")
                         ManagerCallback.onSweetAlertDialogWarning(
                             context,
-                            "Something Wrong with server connection."
+                            "Something Wrong with server connection"
                         )
                     }
                 })

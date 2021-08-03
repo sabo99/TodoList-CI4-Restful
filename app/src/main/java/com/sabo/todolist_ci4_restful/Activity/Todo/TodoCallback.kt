@@ -92,7 +92,7 @@ class TodoCallback {
                                     ManagerCallback.onStopSweetLoading()
                                     Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show()
                                     (context as Activity).finish()
-                                    EventBus.getDefault().postSticky(EventOnRefresh(true, ""))
+                                    EventBus.getDefault().postSticky(EventOnRefresh(true, null))
                                 }, 2000)
                             } else
                                 ManagerCallback.onFailureSweetLoading(response.message())

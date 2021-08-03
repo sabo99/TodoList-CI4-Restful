@@ -20,7 +20,6 @@
     <string name="hint_new_password">New Password</string>
     <string name="hint_title">Title</string>
     <string name="hint_description">Description</string>
-    <string name="hint_date_status">CreatedAt / UpdatedAt :</string>
     <string name="hint_date">2021–10–10</string>
     <string name="hint_profile">Profile</string>
     <string name="hint_edit">Edit</string>

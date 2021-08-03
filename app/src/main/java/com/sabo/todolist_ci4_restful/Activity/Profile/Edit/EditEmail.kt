@@ -73,16 +73,16 @@ class EditEmail {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful) {
+                    if (response.isSuccessful)
                         when (response.body()!!.code) {
                             200 -> checkEmailExist(context, user)
                             400 -> {
                                 binding.progressBar.visibility = View.GONE
-                                val errors = response.body()!!.errorValidation
-                                binding.tilCurrentPassword.error = errors.password
+                                binding.tilCurrentPassword.error =
+                                    response.body()!!.errorValidation.password
                             }
                         }
-                    } else {
+                    else {
                         if (response.message().contains("Not Found"))
                             binding.tilCurrentPassword.error = "Your current password was wrong."
                         else
@@ -100,7 +100,7 @@ class EditEmail {
                     binding.progressBar.visibility = View.GONE
                     ManagerCallback.onSweetAlertDialogWarning(
                         context,
-                        "Can't Change Email.\nSomething Wrong with server connection."
+                        "Can't Change Email.\nSomething Wrong with server connection"
                     )
                     ManagerCallback.onLog("reAuth_Email", "${t.message}")
                 }
@@ -114,20 +114,17 @@ class EditEmail {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful) {
+                    if (response.isSuccessful)
                         when (response.body()!!.code) {
-                            200 -> {
-                                ProfileCallback.onUpdateValues(context, sweetAlertDialog, user, ProfileCallback.KEY_EMAIL)
-                            }
-                            400 -> {
-                                val errors = response.body()!!.errorValidation
-                                if (errors.email.contains("valid email address"))
-                                    binding.tilEmail.error = errors.email
-                                if (errors.email.contains("unique value"))
-                                    binding.tilEmail.error = "Email is already exist."
-                            }
+                            200 -> ProfileCallback.onUpdateValues(
+                                context,
+                                sweetAlertDialog,
+                                user,
+                                ProfileCallback.KEY_EMAIL
+                            )
+                            400 -> binding.tilEmail.error = response.body()!!.errorValidation.email
                         }
-                    } else
+                    else
                         ManagerCallback.onSweetAlertDialogWarning(context, response.message())
 
                     binding.progressBar.visibility = View.GONE
@@ -137,7 +134,8 @@ class EditEmail {
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.progressBar.visibility = View.GONE
                     Log.d("checkEmail-EditEmail", t.message!!)
-                    ManagerCallback.onSweetAlertDialogWarning(context, t.message!!)
+                    ManagerCallback.onSweetAlertDialogWarning(context, "Can't CheckEmailExist.\n" +
+                            "Something Wrong with server connection")
                     ManagerCallback.onLog("checkEmail", "${t.message}")
                 }
             })

@@ -18,7 +18,7 @@ class TodoListAdapter(private val context: Context, private val todoList: List<T
     inner class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         val ivImg = v.findViewById(R.id.ivImage) as ImageView
         val tvTitle = v.findViewById(R.id.tvTitle) as TextView
-        val tvDateStatus = v.findViewById(R.id.tvDateStatus) as TextView
+        val tvDesc = v.findViewById(R.id.tvDesc) as TextView
         val tvDate = v.findViewById(R.id.tvDate) as TextView
     }
 
@@ -38,15 +38,10 @@ class TodoListAdapter(private val context: Context, private val todoList: List<T
         }
 
         holder.tvTitle.text = todo.title
+        holder.tvDesc.text = todo.desc
 
-        if (todo.updated_at == null) {
-            holder.tvDateStatus.text = "CreatedAt :"
-            holder.tvDate.text = todo.created_at
-        } else {
-            holder.tvDateStatus.text = "UpdatedAt :"
-            holder.tvDate.text = todo.updated_at
-        }
-
+        if (todo.updated_at == null) holder.tvDate.text = todo.created_at
+        else holder.tvDate.text = todo.updated_at
 
         holder.itemView.setOnClickListener {
             TodoCallback.onShowed(context, todo.id)

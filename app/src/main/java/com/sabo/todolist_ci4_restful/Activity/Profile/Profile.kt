@@ -78,10 +78,11 @@ class Profile : AppCompatActivity() {
                                 R.drawable.ic_round_person_black
                             ).into(binding.civAvatar)
 
-                        val username = StringBuilder().append(user.username).append("\n")
+                        binding.tvProfileUsername.text =
+                            StringBuilder().append(user.username).append("\n")
+                                .append(ManagerCallback.onTagNumber(user.uid)).toString()
+                        binding.tvUsername.text = StringBuilder().append(user.username)
                             .append(ManagerCallback.onTagNumber(user.uid)).toString()
-                        binding.tvProfileUsername.text = username
-                        binding.tvUsername.text = username
                         binding.tvEmail.text = user.email
 
                         if (user.two_factor_auth == 0) {
