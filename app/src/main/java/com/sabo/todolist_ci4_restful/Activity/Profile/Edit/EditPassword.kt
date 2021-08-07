@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Activity.Profile.ProfileCallback
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
@@ -75,45 +76,41 @@ class EditPassword {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful) {
-                        when (response.body()!!.code) {
-                            200 -> {
-                                if (binding.etNewPassword.text.toString().isEmpty())
-                                    binding.tilNewPassword.error = "The password is required."
-                                else
-                                    ProfileCallback.onUpdateValues(
-                                        context,
-                                        sweetAlertDialog, user, ProfileCallback.KEY_PASSWORD
-                                    )
-                            }
-                            400 -> {
-                                val errorPassword = response.body()!!.errorValidation.password
-
-                                if (binding.etCurrentPassword.text.toString().isEmpty())
-                                    binding.tilCurrentPassword.error = errorPassword
-                                if (binding.etNewPassword.text.toString().isEmpty())
-                                    binding.tilNewPassword.error = errorPassword
-                            }
+                    when (response.code()) {
+                        200 -> {
+                            if (binding.etNewPassword.text.toString().isEmpty())
+                                binding.tilNewPassword.error = "The password is required."
+                            else
+                                ProfileCallback.onUpdateValues(
+                                    context,
+                                    sweetAlertDialog, user, KeyStore.KEY_PASSWORD
+                                )
                         }
-                    } else {
-                        if (response.message().contains("Not Found"))
-                            binding.tilCurrentPassword.error = "Your current password was wrong."
-                        else
-                            ManagerCallback.onSweetAlertDialogWarning(
-                                context,
-                                response.message()
-                            )
+                        400 -> {
+                            val errorPassword =
+                                ManagerCallback.getErrorBody(response)!!.errorValidation.password
+
+                            if (binding.etCurrentPassword.text.toString().isEmpty())
+                                binding.tilCurrentPassword.error = errorPassword
+                            if (binding.etNewPassword.text.toString().isEmpty())
+                                binding.tilNewPassword.error = errorPassword
+                        }
+                        404 -> binding.tilCurrentPassword.error = KeyStore.CURRENT_PASSWORD_WRONG
+                        500 -> ManagerCallback.onSweetAlertDialogWarning(
+                            context,
+                            response.message()
+                        )
                     }
 
                     binding.progressBar.visibility = View.GONE
-                    ManagerCallback.onLog("reAuth_Pass", "$response", "${response.body()}")
+                    ManagerCallback.onLog("reAuth_Pass", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.progressBar.visibility = View.GONE
                     ManagerCallback.onSweetAlertDialogWarning(
                         context,
-                        "Can't Change Password.\nSomething Wrong with server connection"
+                        "Can't Change Password.\n${KeyStore.ON_FAILURE}"
                     )
                     ManagerCallback.onLog("reAuth_Pass", "${t.message}")
                 }

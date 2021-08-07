@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Activity.MainActivity
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
 import com.sabo.todolist_ci4_restful.R
@@ -29,10 +29,6 @@ class Login : AppCompatActivity() {
     private lateinit var sweetTwoFactorAuth: SweetAlertDialog
     private lateinit var bindingSweetTwoFactorAuth: SweetAlertDialogTwoFactorAuthenticationBinding
     private lateinit var countDownTimer: CountDownTimer
-
-    private val DELAY: Long = 120000
-    private val INTERVAL: Long = 1000
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,43 +63,39 @@ class Login : AppCompatActivity() {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful) {
-                        when (response.body()!!.code) {
-                            200 -> {
-                                clearEditText()
-                                if (response.body()!!.user.two_factor_auth == 0)
-                                    goToMainActivity(response)
-                                else {
-                                    val code = ManagerCallback.onGenerateTokenCode()
-                                    showTwoFactorAuth(response, code)
-                                    countDownTimer(response)
-                                }
-
-                            }
-                            400 -> {
-                                val validation = response.body()!!.errorValidation
-
-                                if (!validation.email.isNullOrEmpty())
-                                    binding.etEmail.setBackgroundResource(R.drawable.border_edit_text_error)
-                                if (!validation.password.isNullOrEmpty())
-                                    binding.etPassword.setBackgroundResource(R.drawable.border_edit_text_error)
-
-                                binding.tilEmail.error = validation.email
-                                binding.tilPassword.error = validation.password
+                    when (response.code()) {
+                        200 -> {
+                            clearEditText()
+                            if (response.body()!!.user.two_factor_auth == 0)
+                                goToMainActivity(response)
+                            else {
+                                val code = ManagerCallback.onGenerateTokenCode()
+                                showTwoFactorAuth(response, code)
+                                countDownTimer(response)
                             }
                         }
-                    } else {
-                        if (response.message().contains("Not Found"))
-                            binding.tilPassword.error =
-                                "Your email or password was wrong. Or your account is not registered!"
-                        else
-                            binding.tilPassword.error = response.message()
-                    }
+                        400 -> {
+                            val errors =
+                                ManagerCallback.getErrorBody(response)!!.errorValidation
 
+                            if (!errors.email.isNullOrEmpty())
+                                binding.etEmail.setBackgroundResource(R.drawable.border_edit_text_error)
+                            if (!errors.password.isNullOrEmpty())
+                                binding.etPassword.setBackgroundResource(R.drawable.border_edit_text_error)
+
+                            binding.tilEmail.error = errors.email
+                            binding.tilPassword.error = errors.password
+
+                            ManagerCallback.onLog("signIn", "$errors")
+                        }
+                        404 -> binding.tilPassword.error =
+                                "Your email or password was wrong. Or your account is not registered!"
+                        500 -> ManagerCallback.onSweetAlertDialogWarning(this@Login, response.message())
+                    }
 
                     binding.progressBar.visibility = View.GONE
                     binding.btnLogin.isEnabled = true
-                    ManagerCallback.onLog("signIn", "$response", "${response.body()}")
+                    ManagerCallback.onLog("signIn", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
@@ -111,7 +103,7 @@ class Login : AppCompatActivity() {
                     binding.btnLogin.isEnabled = true
                     ManagerCallback.onSweetAlertDialogWarning(
                         this@Login,
-                        "Something wrong with server connection"
+                        KeyStore.ON_FAILURE
                     )
                     ManagerCallback.onLog("signIn", "${t.message}")
                 }
@@ -124,6 +116,7 @@ class Login : AppCompatActivity() {
     }
 
     private fun goToMainActivity(response: Response<RestfulAPIResponse>) {
+        ManagerCallback.onCreateLogUser(response.body()!!.user.uid, KeyStore.LOG_IN)
         ManagerPreferences.setIsLoggedIn(this@Login, true)
         ManagerPreferences.setUID(
             this@Login,
@@ -145,7 +138,10 @@ class Login : AppCompatActivity() {
         finish()
     }
 
-    private fun showTwoFactorAuth(response: Response<RestfulAPIResponse>, code: String) {
+    private fun showTwoFactorAuth(
+        response: Response<RestfulAPIResponse>,
+        verificationCode: String
+    ) {
         val view = LayoutInflater.from(this)
             .inflate(R.layout.sweet_alert_dialog_two_factor_authentication, null)
 
@@ -183,7 +179,7 @@ class Login : AppCompatActivity() {
             countDownTimer.cancel()
         }
         /** setConfirmListener */
-        setConfirmListener(response, code)
+        setConfirmListener(response, verificationCode)
 
         sweetTwoFactorAuth.show()
         ManagerCallback.initCustomSweetAlertDialog(this, view, sweetTwoFactorAuth)
@@ -193,18 +189,18 @@ class Login : AppCompatActivity() {
             this@Login,
             response.body()!!.user,
             "Log In verification code",
-            code
+            verificationCode
         )
     }
 
 
     private fun setConfirmListener(
         response: Response<RestfulAPIResponse>,
-        code: String
+        verificationCode: String
     ) {
         sweetTwoFactorAuth.setConfirmClickListener {
-            val codeVerification = bindingSweetTwoFactorAuth.etVerificationCode.text.toString()
-            if (codeVerification != code) {
+            val inputCode = bindingSweetTwoFactorAuth.etVerificationCode.text.toString()
+            if (inputCode != verificationCode) {
                 bindingSweetTwoFactorAuth.tilVerificationCode.error =
                     "Your verification code is wrong."
             } else {
@@ -216,15 +212,15 @@ class Login : AppCompatActivity() {
     }
 
     private fun countDownTimer(response: Response<RestfulAPIResponse>) {
-        countDownTimer = object : CountDownTimer(DELAY, INTERVAL) {
+        countDownTimer = object : CountDownTimer(KeyStore.DELAY, KeyStore.INTERVAL) {
             override fun onTick(millisUntilFinished: Long) {
                 bindingSweetTwoFactorAuth.tvResendCode.isEnabled = false
-                val minutes =
-                    DateUtils.formatElapsedTime(millisUntilFinished.div(INTERVAL))
-                        .replace(".", ":")
-
                 bindingSweetTwoFactorAuth.tvResendCode.text =
-                    "Code verification resend in ... $minutes"
+                    ManagerCallback.elapsedTimeVerificationCode(
+                        millisUntilFinished.div(
+                            KeyStore.INTERVAL
+                        )
+                    )
                 bindingSweetTwoFactorAuth.tvResendCode.setTextColor(
                     resources.getColor(
                         R.color.white_70,

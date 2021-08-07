@@ -4,12 +4,12 @@ import android.content.Context
 import android.os.CountDownTimer
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Activity.Profile.ProfileCallback
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
@@ -25,9 +25,6 @@ class TwoFactorAuth {
         private lateinit var sweetAlertDialog: SweetAlertDialog
         private lateinit var binding: SweetAlertDialogEnableTwoAuthBinding
         private lateinit var countDownTimer: CountDownTimer
-
-        private const val DELAY: Long = 120000
-        private const val INTERVAL: Long = 1000
 
         private const val LAYOUT_CURRENT_PASS = 1
         private const val LAYOUT_VERIFY_CODE = 2
@@ -97,39 +94,29 @@ class TwoFactorAuth {
                         call: Call<RestfulAPIResponse>,
                         response: Response<RestfulAPIResponse>
                     ) {
-                        if (response.isSuccessful) {
-                            when (response.body()!!.code) {
-                                200 -> {
-                                    val code = ManagerCallback.onGenerateTokenCode()
-                                    changeLayout(context, user, code)
-                                    ManagerCallback.sendVerificationCode(
-                                        context,
-                                        user,
-                                        "Two Factor Authentication verification code",
-                                        code
-                                    )
-                                    countDownTimer(context, user)
-                                }
-                                400 -> binding.tilCurrentPassword.error =
-                                    response.body()!!.errorValidation.password
-                            }
-                        } else {
-                            if (response.message().contains("Not Found"))
-                                binding.tilCurrentPassword.error =
-                                    "Your current password was wrong."
-                            else
-                                ManagerCallback.onSweetAlertDialogWarning(
+                        when (response.code()) {
+                            200 -> {
+                                val code = ManagerCallback.onGenerateTokenCode()
+                                changeLayout(context, user, code)
+                                ManagerCallback.sendVerificationCode(
                                     context,
-                                    response.message()
+                                    user,
+                                    "Two Factor Authentication verification code",
+                                    code
                                 )
+                                countDownTimer(context, user)
+                            }
+                            400 -> binding.tilCurrentPassword.error =
+                                ManagerCallback.getErrorBody(response)!!.errorValidation.password
+                            404 -> binding.tilCurrentPassword.error =
+                                KeyStore.CURRENT_PASSWORD_WRONG
+                            500 -> ManagerCallback.onSweetAlertDialogWarning(
+                                context,
+                                response.message()
+                            )
                         }
-
                         binding.progressBar.visibility = View.GONE
-                        ManagerCallback.onLog(
-                            "reAuth_TwoFactorAuth",
-                            "$response",
-                            "${response.body()}"
-                        )
+                        ManagerCallback.onLog("reAuth_TwoFactorAuth", response)
                     }
 
                     override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
@@ -137,7 +124,7 @@ class TwoFactorAuth {
                         ManagerCallback.onLog("reAuth_TwoFactorAuth", "${t.message}")
                         ManagerCallback.onSweetAlertDialogWarning(
                             context,
-                            "Something Wrong with server connection"
+                            KeyStore.ON_FAILURE
                         )
                     }
                 })
@@ -171,14 +158,15 @@ class TwoFactorAuth {
                     val inputCode = binding.etVerificationCode.text.toString()
 
                     if (inputCode != code)
-                        binding.tilVerificationCode.error = "Your verification code is wrong."
+                        binding.tilVerificationCode.error = KeyStore.VERIFICATION_CODE_WRONG
+
                     else {
                         countDownTimer.cancel()
                         ProfileCallback.onUpdateValues(
                             context,
                             sweetAlertDialog,
                             user,
-                            ProfileCallback.KEY_TWO_FACTOR_AUTH
+                            KeyStore.KEY_TWO_FACTOR_AUTH
                         )
                     }
                 }
@@ -190,13 +178,14 @@ class TwoFactorAuth {
         }
 
         private fun countDownTimer(context: Context, user: User) {
-            countDownTimer = object : CountDownTimer(DELAY, INTERVAL) {
+            countDownTimer = object : CountDownTimer(KeyStore.DELAY, KeyStore.INTERVAL) {
                 override fun onTick(millisUntilFinished: Long) {
                     binding.tvResendCode.isEnabled = false
-                    val minutes = DateUtils.formatElapsedTime(millisUntilFinished.div(INTERVAL))
-                        .replace(".", ":")
-
-                    binding.tvResendCode.text = "Code verification resend in ... $minutes"
+                    binding.tvResendCode.text = ManagerCallback.elapsedTimeVerificationCode(
+                        millisUntilFinished.div(
+                            KeyStore.INTERVAL
+                        )
+                    )
                     binding.tvResendCode.setTextColor(
                         context.resources.getColor(
                             R.color.white_70,
@@ -207,7 +196,7 @@ class TwoFactorAuth {
 
                 override fun onFinish() {
                     binding.tvResendCode.isEnabled = true
-                    binding.tvResendCode.text = "Resend verification code."
+                    binding.tvResendCode.text = KeyStore.RESEND_CODE
                     binding.tvResendCode.setTextColor(
                         context.resources.getColor(
                             R.color.white,

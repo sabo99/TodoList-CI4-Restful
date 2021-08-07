@@ -180,4 +180,34 @@ interface RestfulAPIRequest {
     fun deleteAllTodo(
         @Path("uid") uid: Int
     ): Call<RestfulAPIResponse>
+
+
+
+    /**
+     *
+     * =====================================================
+     * =====================================================
+     * =====================================================
+     *
+     */
+
+    /**
+     * Create Log User
+     */
+    @FormUrlEncoded
+    @POST("api/loguser")
+    fun createLogUser(
+        @Field("uid") uid: Int,
+        @Field("mac_address") mac_address: String,
+        @Field("action") action: String,
+    ): Call<RestfulAPIResponse>
+
+
+    /**
+     * Get MAC Address
+     */
+    @GET("api/loguser/{uid}")
+    fun getMacAddress(
+        @Path("uid") uid: Int
+    ): Call<RestfulAPIResponse>
 }

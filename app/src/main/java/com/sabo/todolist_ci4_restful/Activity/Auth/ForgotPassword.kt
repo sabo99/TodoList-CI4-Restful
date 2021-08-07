@@ -5,11 +5,11 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
@@ -26,9 +26,6 @@ class ForgotPassword {
         private lateinit var sweetAlertDialog: SweetAlertDialog
         private lateinit var binding: SweetAlertDialogForgotPasswordBinding
         private lateinit var countDownTimer: CountDownTimer
-
-        private const val DELAY: Long = 120000
-        private const val INTERVAL: Long = 1000
 
         /** 1000 = 1 seconds */
         private const val LAYOUT_EMAIL = 103103
@@ -147,28 +144,30 @@ class ForgotPassword {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful) {
-                        when (response.body()!!.code) {
-                            200 -> {
-                                val user = response.body()!!.user
-                                val code = ManagerCallback.onGenerateTokenCode()
-                                changeLayoutPassword(context, user, code)
-                                ManagerCallback.sendVerificationCode(
-                                    context,
-                                    user,
-                                    "Email verification code",
-                                    code
-                                )
-                                countDownTimer(context, user)
-                            }
-                            400 -> binding.tilEmail.error = response.body()!!.errorValidation.email
+                    when (response.code()) {
+                        200 -> {
+                            val user = response.body()!!.user
+                            val code = ManagerCallback.onGenerateTokenCode()
+                            changeLayoutPassword(context, user, code)
+                            ManagerCallback.sendVerificationCode(
+                                context,
+                                user,
+                                "Email verification code",
+                                code
+                            )
+                            countDownTimer(context, user)
                         }
-
-                    } else
-                        binding.tilEmail.error = "Your email is not registered."
+                        400 -> binding.tilEmail.error =
+                                    ManagerCallback.getErrorBody(response)!!.errorValidation.email
+                        404 -> binding.tilEmail.error = "Your email is not registered."
+                        500 -> ManagerCallback.onSweetAlertDialogWarning(
+                            context,
+                            response.message()
+                        )
+                    }
 
                     binding.progressBar.visibility = View.GONE
-                    ManagerCallback.onLog("forgotPassword", "$response", "${response.body()}")
+                    ManagerCallback.onLog("forgotPassword", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
@@ -195,7 +194,7 @@ class ForgotPassword {
                         binding.tilNewPassword.error = "The password is required."
                     } else {
                         if (inputCode != code)
-                            binding.tilVerificationCode.error = "Your verification code is wrong."
+                            binding.tilVerificationCode.error = KeyStore.VERIFICATION_CODE_WRONG
                         else {
                             countDownTimer.cancel()
                             binding.progressBar.visibility = View.VISIBLE
@@ -221,51 +220,50 @@ class ForgotPassword {
                             call: Call<RestfulAPIResponse>,
                             response: Response<RestfulAPIResponse>
                         ) {
-                            if (response.isSuccessful) {
-                                sweetAlertDialog.dismissWithAnimation()
-                                Toast.makeText(
-                                    context,
-                                    "Password has been successfully change.",
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
-                            } else {
-                                Toast.makeText(context, response.message(), Toast.LENGTH_SHORT)
-                                    .show()
+                            when (response.code()) {
+                                200 -> {
+                                    sweetAlertDialog.dismissWithAnimation()
+                                    Toast.makeText(
+                                        context,
+                                        "Password has been successfully change.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                500 -> ManagerCallback.onSweetAlertDialogWarning(context, response.message())
                             }
                             binding.progressBar.visibility = View.GONE
-                            ManagerCallback.onLog("updateUser", "$response", "${response.body()}")
+                            ManagerCallback.onCreateLogUser(user.uid, KeyStore.UPDATE_PASSWORD)
+                            ManagerCallback.onLog("updatePassword", response)
                         }
 
                         override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                             binding.progressBar.visibility = View.GONE
-                            Toast.makeText(context, t.message!!, Toast.LENGTH_SHORT).show()
-                            ManagerCallback.onLog("updateUser", "${t.message}")
+                            ManagerCallback.onSweetAlertDialogWarning(context, KeyStore.ON_FAILURE)
+                            ManagerCallback.onLog("updatePassword", "${t.message}")
                         }
                     })
         }
 
         private fun countDownTimer(context: Context, user: User) {
-            countDownTimer = object : CountDownTimer(DELAY, INTERVAL) {
+            countDownTimer = object : CountDownTimer(KeyStore.DELAY, KeyStore.INTERVAL) {
                 override fun onTick(millisUntilFinished: Long) {
                     binding.tvResendCode.isEnabled = false
-                    val minutes = DateUtils.formatElapsedTime(millisUntilFinished.div(INTERVAL))
-                        .replace(".", ":")
-
-                    binding.tvResendCode.text =
-                        "Code verification resend in ... $minutes"
+                    binding.tvResendCode.text = ManagerCallback.elapsedTimeVerificationCode(
+                        millisUntilFinished.div(
+                            KeyStore.INTERVAL
+                        )
+                    )
                     binding.tvResendCode.setTextColor(
                         context.resources.getColor(
                             R.color.white_70,
                             context.theme
                         )
                     )
-
                 }
 
                 override fun onFinish() {
                     binding.tvResendCode.isEnabled = true
-                    binding.tvResendCode.text = "Resend verification code."
+                    binding.tvResendCode.text = KeyStore.RESEND_CODE
                     binding.tvResendCode.setTextColor(
                         context.resources.getColor(
                             R.color.white,

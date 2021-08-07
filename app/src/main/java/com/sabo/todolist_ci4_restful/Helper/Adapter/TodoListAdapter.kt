@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.sabo.todolist_ci4_restful.Activity.Todo.TodoCallback
+import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Model.Todo
 import com.sabo.todolist_ci4_restful.R
 import com.squareup.picasso.Picasso
@@ -32,7 +33,7 @@ class TodoListAdapter(private val context: Context, private val todoList: List<T
         val todo = todoList[position]
 
         if (todo.image.isNotEmpty()) {
-            val img = TodoCallback.getURLImage(todo.image)
+            val img = ManagerCallback.getURLImage(todo.image)
             Picasso.get().load(img).placeholder(R.drawable.ic_round_image)
                 .placeholder(android.R.drawable.gallery_thumb).into(holder.ivImg)
         }

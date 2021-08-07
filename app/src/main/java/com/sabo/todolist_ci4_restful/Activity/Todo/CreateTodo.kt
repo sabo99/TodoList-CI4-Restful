@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
 import com.sabo.todolist_ci4_restful.Helper.Callback.FileUtilsCallback
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Model.Todo
 import com.sabo.todolist_ci4_restful.Model.User
@@ -141,7 +142,7 @@ class CreateTodo : AppCompatActivity() {
             arrayOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ), ManagerCallback.MULTIPLE_PERMISSION
+            ), KeyStore.MULTIPLE_PERMISSION
         )
     }
 
@@ -178,46 +179,49 @@ class CreateTodo : AppCompatActivity() {
                                 call: Call<RestfulAPIResponse>,
                                 response: Response<RestfulAPIResponse>
                             ) {
-                                if (response.isSuccessful) {
-                                    when (response.body()!!.code) {
-                                        201 -> {
-                                            Handler().postDelayed({
-                                                TodoCallback.onFinish(
-                                                    this@CreateTodo,
-                                                    sweetAlertDialog
-                                                )
-                                                Toast.makeText(
-                                                    this@CreateTodo,
-                                                    response.message(),
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                                EventBus.getDefault()
-                                                    .postSticky(EventOnRefresh(true, null))
-                                                ManagerCallback.onStopSweetLoading()
-                                            }, 2000)
-                                        }
-                                        400 -> {
+                                when (response.code()) {
+                                    201 -> {
+                                        Handler().postDelayed({
+                                            TodoCallback.onFinish(
+                                                this@CreateTodo,
+                                                sweetAlertDialog
+                                            )
+                                            Toast.makeText(
+                                                this@CreateTodo,
+                                                response.message(),
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            EventBus.getDefault()
+                                                .postSticky(EventOnRefresh(true, null))
                                             ManagerCallback.onStopSweetLoading()
-                                            val errors = response.body()!!.errorValidation
-                                            binding.tilTitle.error = errors.title
-                                            binding.tilDesc.error = errors.desc
-                                        }
-                                        401 -> {
-                                            ManagerCallback.onStopSweetLoading()
-                                            binding.tilImage.text =
-                                                response.body()!!.message
-                                        }
+                                        }, 2000)
+                                        ManagerCallback.onCreateLogUser(user.uid, KeyStore.CREATE_TODO)
                                     }
+                                    400 -> {
+                                        ManagerCallback.onStopSweetLoading()
+                                        val errors = ManagerCallback.getErrorBody(response)!!.errorValidation
+                                        binding.tilTitle.error = errors.title
+                                        binding.tilDesc.error = errors.desc
+                                    }
+                                    404 -> {
+                                        ManagerCallback.onStopSweetLoading()
+                                        binding.tilImage.text = ManagerCallback.getErrorBody(response)!!.message
+                                    }
+                                    500 -> {
+                                        ManagerCallback.onStopSweetLoading()
+                                        ManagerCallback.onSweetAlertDialogWarning(
+                                            this@CreateTodo,
+                                            response.message()
+                                        )
+                                    }
+                                }
 
-                                } else
-                                    ManagerCallback.onFailureSweetLoading(response.message())
-
-                                Log.d("createTodo-onResponse", response.body().toString())
+                                ManagerCallback.onLog("createTodo", response)
                             }
 
                             override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                                ManagerCallback.onFailureSweetLoading("Cannot create todo.\nSomething wrong with server connection")
-                                Log.d("createTodo-onFailure", t.message!!)
+                                ManagerCallback.onFailureSweetLoading("Cannot create todo.\n${KeyStore.ON_FAILURE}")
+                                ManagerCallback.onLog("createTodo", "${t.message}")
                             }
                         })
             }
@@ -230,7 +234,7 @@ class CreateTodo : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == ManagerCallback.MULTIPLE_PERMISSION) {
+        if (requestCode == KeyStore.MULTIPLE_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] + grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
 

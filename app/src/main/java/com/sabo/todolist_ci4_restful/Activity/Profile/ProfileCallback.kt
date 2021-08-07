@@ -10,6 +10,7 @@ import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Activity.Auth.Login
 import com.sabo.todolist_ci4_restful.Activity.Profile.Edit.*
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
 import com.sabo.todolist_ci4_restful.Model.User
@@ -26,35 +27,10 @@ class ProfileCallback {
 
         private lateinit var sweetAlertDialogMain: SweetAlertDialog
 
-        private const val contentLoadingEmail = "Update Email"
-        private const val contentLoadingUsername = "Update Username"
-        private const val contentLoadingPassword = "Update Password"
-        private const val contentLoadingTwoFactorAuthEnable = "Enable Two-Factor Authentication"
-        private const val contentLoadingTwoFactorAuthDisable = "Disable Two-Factor Authentication"
-
-        private const val contentSuccessEmail = "Email successfully updated"
-        private const val contentSuccessUsername = "Username successfully updated"
-        private const val contentSuccessPassword = "Password successfully updated"
-        private const val contentSuccessTwoFactorAuthEnable = "Two-Factor Authentication 'Enabled'"
-        private const val contentSuccessTwoFactorAuthDisable =
-            "Two-Factor Authentication 'Disabled'"
-
-        const val KEY_PROFILE = 0
-        const val KEY_USERNAME = 1
-        const val KEY_EMAIL = 2
-        const val KEY_PASSWORD = 3
-        const val KEY_TWO_FACTOR_AUTH = 4
-
-
-        /** Get URL Avatar User */
-        fun getURLAvatar(avatar: String): String {
-            return RestfulAPIService.AVATAR_TODO_URL + avatar
-        }
-
         /**
          * On Edited
          */
-        fun onEdited(context: Context, user: User, keyUpdate: Int){
+        fun onEdited(context: Context, user: User, keyUpdate: Int) {
             ManagerCallback.onStartSweetLoading(context, "")
             RestfulAPIService.requestMethod().editUser(user.uid).enqueue(object :
                 Callback<RestfulAPIResponse> {
@@ -62,22 +38,60 @@ class ProfileCallback {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful){
-                        ManagerCallback.onStopSweetLoading()
-                        val userValue = response.body()!!.user
-                        when(keyUpdate){
-                            KEY_PROFILE -> context.startActivity(Intent(context, EditProfile::class.java).putExtra("user", userValue))
-                            KEY_USERNAME -> EditUsername.onUpdated(context, userValue)
-                            KEY_EMAIL -> EditEmail.onUpdated(context, userValue)
-                            KEY_PASSWORD -> EditPassword.onUpdated(context, userValue)
-                            KEY_TWO_FACTOR_AUTH -> TwoFactorAuth.onUpdated(context, userValue)
+                    when(response.code()){
+                        200 -> {
+                            ManagerCallback.onStopSweetLoading()
+                            val userValue = response.body()!!.user
+                            when (keyUpdate) {
+                                KeyStore.KEY_PROFILE -> {
+                                    context.startActivity(
+                                        Intent(
+                                            context,
+                                            EditProfile::class.java
+                                        ).putExtra("user", userValue)
+                                    )
+                                    ManagerCallback.onCreateLogUser(
+                                        response.body()!!.user.uid,
+                                        KeyStore.EDIT_PROFILE
+                                    )
+                                }
+                                KeyStore.KEY_USERNAME -> {
+                                    EditUsername.onUpdated(context, userValue)
+                                    ManagerCallback.onCreateLogUser(
+                                        response.body()!!.user.uid,
+                                        KeyStore.EDIT_USERNAME
+                                    )
+                                }
+                                KeyStore.KEY_EMAIL -> {
+                                    EditEmail.onUpdated(context, userValue)
+                                    ManagerCallback.onCreateLogUser(
+                                        response.body()!!.user.uid,
+                                        KeyStore.EDIT_EMAIL
+                                    )
+                                }
+                                KeyStore.KEY_PASSWORD -> {
+                                    EditPassword.onUpdated(context, userValue)
+                                    ManagerCallback.onCreateLogUser(
+                                        response.body()!!.user.uid,
+                                        KeyStore.EDIT_PASSWORD
+                                    )
+                                }
+                                KeyStore.KEY_TWO_FACTOR_AUTH -> TwoFactorAuth.onUpdated(
+                                    context,
+                                    userValue
+                                )
+                            }
                         }
-                    }else
-                        ManagerCallback.onFailureSweetLoading(response.message())
+                        404 -> ManagerCallback.onFailureSweetLoading(response.message())
+                        500 -> ManagerCallback.onFailureSweetLoading(response.message())
+                    }
+
+                    ManagerCallback.onLog("editUser", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                    ManagerCallback.onFailureSweetLoading("Something wrong with server connection")
+                    ManagerCallback.onFailureSweetLoading(KeyStore.ON_FAILURE)
+                    ManagerCallback.onLog("editUser", "${t.message}")
                 }
             })
 
@@ -93,13 +107,13 @@ class ProfileCallback {
         ) {
             var content = ""
             when (keyUpdate) {
-                KEY_USERNAME -> content = contentLoadingUsername
-                KEY_EMAIL -> content = contentLoadingEmail
-                KEY_PASSWORD -> content = contentLoadingPassword
-                KEY_TWO_FACTOR_AUTH -> {
+                KeyStore.KEY_USERNAME -> content = KeyStore.contentLoadingUsername
+                KeyStore.KEY_EMAIL -> content = KeyStore.contentLoadingEmail
+                KeyStore.KEY_PASSWORD -> content = KeyStore.contentLoadingPassword
+                KeyStore.KEY_TWO_FACTOR_AUTH -> {
                     when (user.two_factor_auth) {
-                        0 -> content = contentLoadingTwoFactorAuthDisable
-                        1 -> content = contentLoadingTwoFactorAuthEnable
+                        0 -> content = KeyStore.contentLoadingTwoFactorAuthDisable
+                        1 -> content = KeyStore.contentLoadingTwoFactorAuthEnable
                     }
                 }
             }
@@ -120,55 +134,86 @@ class ProfileCallback {
                                 call: Call<RestfulAPIResponse>,
                                 response: Response<RestfulAPIResponse>
                             ) {
-                                if (response.isSuccessful) {
-                                    when (response.body()!!.code) {
-                                        200 -> {
-                                            var message = ""
-                                            when (keyUpdate) {
-                                                KEY_USERNAME -> message = contentSuccessUsername
-                                                KEY_EMAIL -> message = contentSuccessEmail
-                                                KEY_PASSWORD -> message = contentSuccessPassword
-                                                KEY_TWO_FACTOR_AUTH -> {
-                                                    when (user.two_factor_auth) {
-                                                        0 -> message =
-                                                            contentSuccessTwoFactorAuthDisable
-                                                        1 -> message =
-                                                            contentSuccessTwoFactorAuthEnable
+                                when (response.code()) {
+                                    200 -> {
+                                        var message = ""
+                                        when (keyUpdate) {
+                                            KeyStore.KEY_USERNAME -> {
+                                                message = KeyStore.contentSuccessUsername
+                                                ManagerCallback.onCreateLogUser(
+                                                    user.uid,
+                                                    KeyStore.UPDATE_USERNAME
+                                                )
+                                            }
+                                            KeyStore.KEY_EMAIL -> {
+                                                message = KeyStore.contentSuccessEmail
+                                                ManagerCallback.sendMailSuccessChangeEmailAddress(
+                                                    user
+                                                )
+                                                ManagerCallback.onCreateLogUser(
+                                                    user.uid,
+                                                    KeyStore.UPDATE_EMAIL
+                                                )
+                                            }
+                                            KeyStore.KEY_PASSWORD -> {
+                                                message = KeyStore.contentSuccessPassword
+                                                ManagerCallback.onCreateLogUser(
+                                                    user.uid,
+                                                    KeyStore.UPDATE_PASSWORD
+                                                )
+                                            }
+                                            KeyStore.KEY_TWO_FACTOR_AUTH -> {
+                                                when (user.two_factor_auth) {
+                                                    0 -> {
+                                                        message =
+                                                            KeyStore.contentSuccessTwoFactorAuthDisable
+                                                        ManagerCallback.onCreateLogUser(
+                                                            user.uid,
+                                                            KeyStore.DISABLE_TWO_FACTOR_AUTH
+                                                        )
+                                                    }
+                                                    1 -> {
+                                                        message =
+                                                            KeyStore.contentSuccessTwoFactorAuthEnable
+                                                        ManagerCallback.onCreateLogUser(
+                                                            user.uid,
+                                                            KeyStore.ENABLE_TWO_FACTOR_AUTH
+                                                        )
                                                     }
                                                 }
                                             }
-
-                                            ManagerCallback.onSuccessSweetLoading(message)
-                                            EventBus.getDefault()
-                                                .postSticky(EventOnRefresh(true, null))
-                                            sweetAlertDialog.dismissWithAnimation()
                                         }
 
-                                        400 -> {
-                                            val errors = response.body()!!.errorValidation
-                                            var error = ""
-                                            when (keyUpdate) {
-                                                KEY_USERNAME -> error = errors.username
-                                                KEY_EMAIL -> error = errors.email
-                                                KEY_PASSWORD -> error = errors.password
-                                            }
-                                            ManagerCallback.onFailureSweetLoading(error)
-                                        }
+                                        ManagerCallback.onSuccessSweetLoading(message)
+                                        EventBus.getDefault()
+                                            .postSticky(EventOnRefresh(true, null))
+                                        sweetAlertDialog.dismissWithAnimation()
                                     }
-                                } else
-                                    ManagerCallback.onFailureSweetLoading(response.message())
-
-                                ManagerCallback.onLog("updateUser", "$response", "${response.body()}")
+                                    400 -> {
+                                        val errors = response.body()!!.errorValidation
+                                        var error = ""
+                                        when (keyUpdate) {
+                                            KeyStore.KEY_USERNAME -> error = errors.username
+                                            KeyStore.KEY_EMAIL -> error = errors.email
+                                            KeyStore.KEY_PASSWORD -> error = errors.password
+                                        }
+                                        ManagerCallback.onFailureSweetLoading(error)
+                                    }
+                                    500 -> ManagerCallback.onSweetAlertDialogWarning(
+                                        context,
+                                        response.message()
+                                    )
+                                }
+                                ManagerCallback.onLog("updateUser", response)
                             }
 
                             override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                                ManagerCallback.onFailureSweetLoading("Can't Update User.\nSomething wrong with server connection")
+                                ManagerCallback.onFailureSweetLoading("Can't Update User.\n${KeyStore.ON_FAILURE}")
                                 ManagerCallback.onLog("updateUser", "${t.message}")
                             }
                         })
             }, 2000)
         }
-
 
 
         /**
@@ -195,6 +240,7 @@ class ProfileCallback {
                         response: Response<RestfulAPIResponse>
                     ) {
                         if (response.isSuccessful) {
+                            ManagerCallback.onCreateLogUser(uid, KeyStore.DELETE_ALL_TODO)
 
                             RestfulAPIService.requestMethod().deleteUser(uid)
                                 .enqueue(
@@ -203,34 +249,42 @@ class ProfileCallback {
                                             call: Call<RestfulAPIResponse>,
                                             response: Response<RestfulAPIResponse>
                                         ) {
-                                            if (response.isSuccessful) {
-                                                sweetAlertDialogMain.dismiss()
-                                                ManagerCallback.onStopSweetLoading()
+                                            when(response.code()){
+                                                200 -> {
+                                                    sweetAlertDialogMain.dismiss()
+                                                    ManagerCallback.onStopSweetLoading()
 
-                                                ManagerPreferences.clearUserPreferences(context)
-                                                context.startActivity(
-                                                    Intent(
-                                                        context,
-                                                        Login::class.java
+                                                    ManagerPreferences.clearUserPreferences(context)
+                                                    context.startActivity(
+                                                        Intent(
+                                                            context,
+                                                            Login::class.java
+                                                        )
                                                     )
-                                                )
-                                                (context as Activity).finish()
-                                            } else
-                                                ManagerCallback.onFailureSweetLoading(response.message())
+                                                    (context as Activity).finish()
+                                                    ManagerCallback.onCreateLogUser(
+                                                        uid,
+                                                        KeyStore.DELETE_ACCOUNT
+                                                    )
+                                                }
+                                                500 -> {
+                                                    ManagerCallback.onFailureSweetLoading(response.message())
+                                                }
+                                            }
                                         }
 
                                         override fun onFailure(
                                             call: Call<RestfulAPIResponse>,
                                             t: Throwable
                                         ) {
-                                            ManagerCallback.onFailureSweetLoading(t.message!!)
+                                            ManagerCallback.onFailureSweetLoading(KeyStore.ON_FAILURE)
                                         }
                                     })
 
                         } else {
                             ManagerCallback.onFailureSweetLoading(response.message())
                         }
-                        ManagerCallback.onLog("deleteAllTodo", "$response", "${response.body()}")
+                        ManagerCallback.onLog("deleteAllTodo", response)
                     }
 
                     override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
@@ -241,7 +295,7 @@ class ProfileCallback {
             }
             sweetAlertDialogMain.show()
 
-            ManagerCallback.initCustomSweetAlertDialog(context, null, sweetAlertDialogMain)
+            ManagerCallback.initCustomSweetAlertDialog(context, sweetAlertDialogMain)
         }
 
 
@@ -261,6 +315,10 @@ class ProfileCallback {
             sweetAlertDialogMain.setConfirmClickListener {
                 sweetAlertDialogMain.dismissWithAnimation()
 
+                ManagerCallback.onCreateLogUser(
+                    ManagerPreferences.getUID(context),
+                    KeyStore.LOG_OUT
+                )
                 ManagerPreferences.clearUserPreferences(context)
                 val i = Intent(context, Login::class.java)
                 i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -270,7 +328,7 @@ class ProfileCallback {
 
             sweetAlertDialogMain.show()
 
-            ManagerCallback.initCustomSweetAlertDialog(context, null, sweetAlertDialogMain)
+            ManagerCallback.initCustomSweetAlertDialog(context, sweetAlertDialogMain)
         }
     }
 

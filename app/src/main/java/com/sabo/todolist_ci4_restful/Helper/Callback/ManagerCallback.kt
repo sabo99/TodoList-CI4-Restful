@@ -2,18 +2,29 @@ package com.sabo.todolist_ci4_restful.Helper.Callback
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.text.Html.fromHtml
+import android.text.format.DateUtils
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.google.gson.Gson
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
+import com.sabo.todolist_ci4_restful.Activity.Auth.Login
 import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.Credentials
 import com.sabo.todolist_ci4_restful.Helper.JavaMailAPI.GMailSender
+import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
 import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
+import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIResponse
+import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIService
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.net.NetworkInterface
 import java.util.*
 import kotlin.math.abs
 
@@ -26,8 +37,6 @@ class ManagerCallback {
         private lateinit var contentText: TextView
         private lateinit var confirmButton: Button
         private lateinit var cancelButton: Button
-
-        const val MULTIPLE_PERMISSION = 333
 
         fun onStartSweetLoading(context: Context, content: String) {
             sweetLoading = SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE)
@@ -43,8 +52,7 @@ class ManagerCallback {
 
             sweetLoading.show()
 
-            initCustomSweetAlertDialog(context, null, sweetLoading)
-
+            initCustomSweetAlertDialog(context, sweetLoading)
         }
 
         fun onStopSweetLoading() {
@@ -79,12 +87,12 @@ class ManagerCallback {
             sweet.titleText = "Oops!"
             sweet.contentText = "$content."
             sweet.show()
-            initCustomSweetAlertDialog(context, null, sweet)
+            initCustomSweetAlertDialog(context, sweet)
         }
 
         fun initCustomSweetAlertDialog(
             context: Context,
-            view: View?,
+            view: View,
             sweetAlertDialog: SweetAlertDialog
         ) {
             linearLayout = sweetAlertDialog.findViewById(R.id.loading)
@@ -93,13 +101,10 @@ class ManagerCallback {
             confirmButton = sweetAlertDialog.findViewById(R.id.confirm_button)
             cancelButton = sweetAlertDialog.findViewById(R.id.cancel_button)
 
-            if (view != null) {
-                val index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text))
-                linearLayout.addView(view, index + 1)
-                titleText.visibility = View.GONE
-                confirmButton.setBackgroundResource(R.drawable.confirm_button_background)
-            } else
-                titleText.visibility = View.VISIBLE
+            val index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text))
+            linearLayout.addView(view, index + 1)
+            titleText.visibility = View.GONE
+            confirmButton.setBackgroundResource(R.drawable.confirm_button_background)
 
             linearLayout.setBackgroundResource(R.drawable.sweet_alert_dialog_background)
             titleText.setTextColor(context.resources.getColor(R.color.white, context.theme))
@@ -107,8 +112,27 @@ class ManagerCallback {
             cancelButton.setBackgroundResource(R.drawable.cancel_button_background)
         }
 
+        fun initCustomSweetAlertDialog(
+            context: Context,
+            sweetAlertDialog: SweetAlertDialog
+        ) {
+            linearLayout = sweetAlertDialog.findViewById(R.id.loading)
+            titleText = sweetAlertDialog.findViewById(R.id.title_text)
+            contentText = sweetAlertDialog.findViewById(R.id.content_text)
+            confirmButton = sweetAlertDialog.findViewById(R.id.confirm_button)
+            cancelButton = sweetAlertDialog.findViewById(R.id.cancel_button)
 
-        fun onTagNumber(integer: Int): String {
+            linearLayout.setBackgroundResource(R.drawable.sweet_alert_dialog_background)
+            titleText.setTextColor(context.resources.getColor(R.color.white, context.theme))
+            contentText.setTextColor(context.resources.getColor(R.color.white_70, context.theme))
+
+            if (sweetAlertDialog.alerType != SweetAlertDialog.WARNING_TYPE)
+                confirmButton.setBackgroundResource(R.drawable.confirm_button_background)
+            cancelButton.setBackgroundResource(R.drawable.cancel_button_background)
+        }
+
+
+        fun onHashNumber(integer: Int): String {
             return when (integer.toString().length) {
                 1 -> "#000$integer"
                 2 -> "#00$integer"
@@ -154,7 +178,24 @@ class ManagerCallback {
             }
         }
 
-        fun sendVerificationCode(context: Context, user: User, subject: String, code: String){
+        /** Get URL Avatar User */
+        fun getURLAvatar(avatar: String): String {
+            return RestfulAPIService.AVATAR_TODO_URL + avatar
+        }
+
+        /** Get URL Image TodoList */
+        fun getURLImage(image: String): String {
+            return RestfulAPIService.IMG_TODO_URL + image
+        }
+
+        /** Count Down Timer Limit Use Code Verification */
+        fun elapsedTimeVerificationCode(time: Long): String {
+            return "Code verification resend in ... " + DateUtils.formatElapsedTime(time)
+                .replace(".", ":")
+        }
+
+        /** Send Verification Code From E-mail */
+        fun sendVerificationCode(context: Context, user: User, subject: String, code: String) {
             onStartSweetLoading(context, "Code sent")
 
             Thread(Runnable {
@@ -167,8 +208,8 @@ class ManagerCallback {
                     sender.sendMail(
                         "$subject : $code",
                         "This code will expire in 2 minutes.",
-                        "${Credentials.EMAIL_SENDER}",
-                        "${user.email}"
+                        Credentials.EMAIL_SENDER,   /** Sender */
+                        user.email                  /** Recipient */
                     )
 
                     (context as Activity).runOnUiThread {
@@ -181,9 +222,128 @@ class ManagerCallback {
             }).start()
         }
 
-        fun onLog(tag: String, response: String, body: String) {
-            Log.d(tag, response)
-            Log.d(tag, body)
+        fun sendMailSuccessChangeEmailAddress(user: User) {
+            Thread(Runnable {
+                try {
+                    val sender =
+                        GMailSender(
+                            Credentials.EMAIL_SENDER,
+                            Credentials.PASSWORD_SENDER
+                        )
+                    sender.sendMail(
+                        "Hi, ${user.username}.",
+                        "Your email has been updated to the email address used with your TodoList account. " +
+                                "The previous email address is ${user.avatar} and the new address is ${user.email}. " +
+                                "If there is an error changing your email address, please contact your Workspace Admin. " +
+                                "Thank you!",
+                        Credentials.EMAIL_SENDER, /** Sender */
+                        user.email                /** Recipient */
+                    )
+                } catch (e: Exception) {
+                    onLog("SendEmail", "${e.message}")
+                }
+            }).start()
+        }
+
+        /** Get Current MAC Address */
+        private fun getCurrentMacAddress(): String {
+            val networkInterfaceList: List<NetworkInterface> =
+                Collections.list(NetworkInterface.getNetworkInterfaces())
+            var stringMacAdd = ""
+
+            for (networkInterface: NetworkInterface in networkInterfaceList) {
+                if (networkInterface.name.contains("wlan0")) {
+                    for (i in networkInterface.hardwareAddress.indices) {
+                        var stringMacByte =
+                            Integer.toHexString(networkInterface.hardwareAddress[i].toInt())
+
+                        if (stringMacByte.length == 1)
+                            stringMacByte = "0$stringMacByte"
+
+                        stringMacAdd = stringMacAdd + stringMacByte.toUpperCase() + ":"
+                    }
+                    break
+                }
+            }
+
+            val macAddress = stringMacAdd.substring(0, stringMacAdd.length - 1)
+            val result = if (macAddress.contains("FFFFFF")) macAddress.replace(
+                "FFFFFF",
+                ""
+            ) else macAddress
+
+            onLog("YourMacAddress", "MacAddress : $result")
+
+            return result
+        }
+
+        fun checkSelfMACAddressAuthentication(context: Context) {
+            RestfulAPIService.requestMethod().getMacAddress(ManagerPreferences.getUID(context))
+                .enqueue(
+                    object : Callback<RestfulAPIResponse> {
+                        override fun onResponse(
+                            call: Call<RestfulAPIResponse>,
+                            response: Response<RestfulAPIResponse>
+                        ) {
+                            if (response.isSuccessful) {
+                                if (getCurrentMacAddress() != response.body()!!.logUsers.mac_address) {
+                                    val sweet =
+                                        SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                                    sweet.titleText = "Oops!"
+                                    sweet.contentText =
+                                        "Your account already login in another device"
+                                    sweet.setConfirmClickListener {
+                                        ManagerPreferences.clearUserPreferences(context)
+                                        val i = Intent(context, Login::class.java)
+                                        i.flags =
+                                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                        context.startActivity(i)
+                                        (context as Activity).finish()
+                                    }
+                                    sweet.show()
+                                    initCustomSweetAlertDialog(context, sweet)
+                                }
+                            }
+                            onLog("checkSelfMacAddress", response)
+                        }
+
+                        override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
+                            onLog("checkSelfMacAddress", "${t.message}")
+                        }
+                    })
+        }
+
+        /** Create Log User */
+        fun onCreateLogUser(uid: Int, action: String) {
+            RestfulAPIService.requestMethod().createLogUser(uid, getCurrentMacAddress(), action)
+                .enqueue(
+                    object : Callback<RestfulAPIResponse> {
+                        override fun onResponse(
+                            call: Call<RestfulAPIResponse>,
+                            response: Response<RestfulAPIResponse>
+                        ) {
+                            onLog("createLogUser", response)
+                        }
+
+                        override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
+                            onLog("createLogUser", "${t.message}")
+                        }
+                    })
+        }
+
+        /** Get Response Error Body, when Response Code == 400 */
+        fun getErrorBody(response: Response<RestfulAPIResponse>): RestfulAPIResponse? {
+            return Gson().fromJson(
+                response.errorBody()!!.string(), RestfulAPIResponse::class.java
+            )
+        }
+
+        fun onLog(tag: String, response: Response<RestfulAPIResponse>) {
+            Log.d(tag, "Code      : ${response.code()}")
+            Log.d(tag, "Message   : ${response.message()}")
+            Log.d(tag, "Body      : ${response.body()}")
+            Log.d(tag, "ErrorBody : ${response.errorBody()}")
+            Log.d(tag, "============================================")
         }
 
         fun onLog(tag: String, message: String) {

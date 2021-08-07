@@ -40,7 +40,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_round_person" />
+            app:srcCompat="@drawable/ic_round_person"
+            app:tint="@color/white" />
 
         <TextView
             android:id="@+id/textView2"

@@ -13,9 +13,9 @@ import android.text.format.DateFormat
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
-import com.sabo.todolist_ci4_restful.Activity.Profile.ProfileCallback
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
 import com.sabo.todolist_ci4_restful.Helper.Callback.FileUtilsCallback
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
@@ -56,8 +56,9 @@ class EditProfile : AppCompatActivity() {
     private fun initViews() {
         user = intent.getParcelableExtra("user")
 
-        Picasso.get().load(user.avatar?.let { ProfileCallback.getURLAvatar(it) })
+        Picasso.get().load(user.avatar?.let { ManagerCallback.getURLAvatar(it) })
             .placeholder(R.drawable.ic_round_person).into(binding.civAvatar)
+        binding.tvUsername.text = StringBuilder().append(user.username).append(ManagerCallback.onHashNumber(user.uid))
 
         binding.chronometer.setOnChronometerTickListener {
             val time = SystemClock.elapsedRealtime() - it.base
@@ -68,6 +69,8 @@ class EditProfile : AppCompatActivity() {
 
 
         binding.btnChangeAvatar.setOnClickListener { onCheckPermissions() }
+
+        ManagerCallback.onLog("EditProfile", user.toString())
     }
 
     private fun onCheckPermissions() {
@@ -98,7 +101,7 @@ class EditProfile : AppCompatActivity() {
             arrayOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ), ManagerCallback.MULTIPLE_PERMISSION
+            ), KeyStore.MULTIPLE_PERMISSION
         )
     }
 
@@ -141,29 +144,26 @@ class EditProfile : AppCompatActivity() {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful) {
-                        when (response.body()!!.code) {
-                            200 -> {
-                                ManagerCallback.onStopSweetLoading()
-                                EventBus.getDefault().postSticky(EventOnRefresh(true, null))
-                                Toast.makeText(
-                                    this@EditProfile,
-                                    response.message(),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                finish()
-                            }
-                            400 -> {
-                                ManagerCallback.onFailureSweetLoading(response.message())
-                            }
+                    when (response.code()) {
+                        200 -> {
+                            ManagerCallback.onStopSweetLoading()
+                            EventBus.getDefault().postSticky(EventOnRefresh(true, null))
+                            Toast.makeText(
+                                this@EditProfile,
+                                response.message(),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            finish()
+                            ManagerCallback.onCreateLogUser(user.uid, KeyStore.UPDATE_PROFILE)
                         }
-                    } else
-                        ManagerCallback.onFailureSweetLoading(response.message())
-                    ManagerCallback.onLog("uploadAvatar", "$response", "${response.body()}")
+                        400 -> ManagerCallback.onFailureSweetLoading(ManagerCallback.getErrorBody(response)!!.message)
+                        500 -> ManagerCallback.onFailureSweetLoading(response.message())
+                    }
+                    ManagerCallback.onLog("uploadAvatar", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                    ManagerCallback.onFailureSweetLoading("Something wrong with server connection")
+                    ManagerCallback.onFailureSweetLoading(KeyStore.ON_FAILURE)
                     ManagerCallback.onLog("uploadAvatar", "${t.message}")
                 }
             })

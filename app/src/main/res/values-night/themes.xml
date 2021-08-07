@@ -1,16 +1,56 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="MaterialComponent.DarkActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="MaterialComponent.DarkActionBar" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimary">@color/outer_space</item>
+        <item name="colorPrimaryVariant">@color/mine_shaft</item>
+        <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">@color/lynch</item>
+        <item name="colorSecondaryVariant">@color/outer_space</item>
+        <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="MaterialComponent.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/outer_space</item>
+        <item name="colorPrimaryVariant">@color/mine_shaft</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/lynch</item>
+        <item name="colorSecondaryVariant">@color/outer_space</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+    </style>
+
+
+    <style name="SweetAlert.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/outer_space</item>
+        <item name="colorPrimaryDark">@color/mine_shaft</item>
+        <item name="colorAccent">@color/lynch</item>
+        <item name="colorOnSecondary">@color/white</item>
+    </style>
+
+    <style name="SweetAlert.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/outer_space</item>
+        <item name="colorPrimaryDark">@color/mine_shaft</item>
+        <item name="colorAccent">@color/lynch</item>
+        <item name="colorOnSecondary">@color/white</item>
+    </style>
+
+
+    <style name="SweetAlert.MaterialComponents" parent="Theme.MaterialComponents">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/white</item>
+
+    </style>
+
 </resources>

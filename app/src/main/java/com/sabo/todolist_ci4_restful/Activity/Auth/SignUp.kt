@@ -4,11 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.sabo.todolist_ci4_restful.Activity.MainActivity
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
 import com.sabo.todolist_ci4_restful.R
@@ -59,7 +59,7 @@ class SignUp : AppCompatActivity() {
                             call: Call<RestfulAPIResponse>,
                             response: Response<RestfulAPIResponse>
                         ) {
-                            when (response.body()!!.code) {
+                            when (response.code()) {
                                 201 -> {
                                     clearEditText()
 
@@ -82,50 +82,43 @@ class SignUp : AppCompatActivity() {
                                         )
                                     )
                                     finish()
+
+                                    ManagerCallback.onCreateLogUser(response.body()!!.user.uid, KeyStore.SIGN_UP)
                                 }
                                 400 -> {
-                                    val validation = response.body()!!.errorValidation
+                                    val errors =  ManagerCallback.getErrorBody(response)!!.errorValidation
 
-                                    if (!validation.username.isNullOrEmpty())
+                                    if (!errors.username.isNullOrEmpty())
                                         binding.etUsername.setBackgroundResource(R.drawable.border_edit_text_error)
-                                    if (!validation.email.isNullOrEmpty())
+                                    if (!errors.email.isNullOrEmpty())
                                         binding.etEmail.setBackgroundResource(R.drawable.border_edit_text_error)
-                                    if (!validation.password.isNullOrEmpty())
+                                    if (!errors.password.isNullOrEmpty())
                                         binding.etPassword.setBackgroundResource(R.drawable.border_edit_text_error)
-                                    if (!validation.password_confirm.isNullOrEmpty())
+                                    if (!errors.password_confirm.isNullOrEmpty())
                                         binding.etPasswordConfirm.setBackgroundResource(R.drawable.border_edit_text_error)
 
-                                    binding.tilUsername.error = validation.username
-                                    binding.tilEmail.error = validation.email
-                                    binding.tilPassword.error = validation.password
-                                    binding.tilPasswordConfirm.error = validation.password_confirm
+                                    binding.tilUsername.error = errors.username
+                                    binding.tilEmail.error = errors.email
+                                    binding.tilPassword.error = errors.password
+                                    binding.tilPasswordConfirm.error = errors.password_confirm
 
+                                    ManagerCallback.onLog("signUp-errors", errors.toString())
                                 }
-                                else -> {
-                                    Toast.makeText(
-                                        this@SignUp,
-                                        response.message(),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                                500 -> ManagerCallback.onSweetAlertDialogWarning(this@SignUp, response.message())
                             }
 
                             binding.progressBar.visibility = View.GONE
                             binding.btnSignUp.isEnabled = true
-                            ManagerCallback.onLog("SignUp", "$response", "${response.body()}")
+                            ManagerCallback.onLog("signUp", response)
                         }
 
                         override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                             binding.progressBar.visibility = View.GONE
                             binding.btnSignUp.isEnabled = true
 
-                            Toast.makeText(
-                                this@SignUp,
-                                t.message!!,
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            ManagerCallback.onSweetAlertDialogWarning(this@SignUp, KeyStore.ON_FAILURE)
 
-                            ManagerCallback.onLog("SignUp", "${t.message}")
+                            ManagerCallback.onLog("signUp", "${t.message}")
                         }
                     })
         }

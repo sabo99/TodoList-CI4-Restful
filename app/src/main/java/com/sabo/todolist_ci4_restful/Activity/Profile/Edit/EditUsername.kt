@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Activity.Profile.ProfileCallback
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
@@ -36,7 +37,7 @@ class EditUsername {
             sweetAlertDialog.setOnShowListener {
                 binding.ibClose.setOnClickListener { onClose() }
 
-                binding.tilUsername.suffixText = ManagerCallback.onTagNumber(user.uid)
+                binding.tilUsername.suffixText = ManagerCallback.onHashNumber(user.uid)
                 binding.etUsername.setText(user.username)
                 onTextWatcher()
             }
@@ -72,36 +73,30 @@ class EditUsername {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful) {
-                        when (response.body()!!.code) {
-                            200 -> ProfileCallback.onUpdateValues(
-                                context,
-                                sweetAlertDialog,
-                                user,
-                                ProfileCallback.KEY_USERNAME
-                            )
-                            400 -> binding.tilCurrentPassword.error =
-                                response.body()!!.errorValidation.password
-                        }
-                    } else {
-                        if (response.message().contains("Not Found"))
-                            binding.tilCurrentPassword.error = "Your current password was wrong."
-                        else
-                            ManagerCallback.onSweetAlertDialogWarning(
-                                context,
-                                response.message()
-                            )
+                    when (response.body()!!.code) {
+                        200 -> ProfileCallback.onUpdateValues(
+                            context,
+                            sweetAlertDialog,
+                            user,
+                            KeyStore.KEY_USERNAME
+                        )
+                        400 -> binding.tilCurrentPassword.error =
+                            ManagerCallback.getErrorBody(response)!!.errorValidation.password
+                        404 -> binding.tilCurrentPassword.error = KeyStore.CURRENT_PASSWORD_WRONG
+                        500 -> ManagerCallback.onSweetAlertDialogWarning(
+                            context,
+                            response.message()
+                        )
                     }
-
                     binding.progressBar.visibility = View.GONE
-                    ManagerCallback.onLog("reAuth_Username", "$response", "${response.body()}")
+                    ManagerCallback.onLog("reAuth_Username", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.progressBar.visibility = View.GONE
                     ManagerCallback.onSweetAlertDialogWarning(
                         context,
-                        "Can't Change Username.\nSomething Wrong with server connection"
+                        "Can't Change Username.\n${KeyStore.ON_FAILURE}"
                     )
                     ManagerCallback.onLog("reAuth_Username", "${t.message}")
                 }

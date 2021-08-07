@@ -1,13 +1,14 @@
 package com.sabo.todolist_ci4_restful.Activity.Profile.Edit
 
 import android.content.Context
+import android.os.CountDownTimer
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Activity.Profile.ProfileCallback
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Model.User
 import com.sabo.todolist_ci4_restful.R
@@ -22,8 +23,16 @@ class EditEmail {
     companion object {
         private lateinit var sweetAlertDialog: SweetAlertDialog
         private lateinit var binding: SweetAlertDialogEditEmailBinding
+        private lateinit var countDownTimer: CountDownTimer
+
+        private const val LAYOUT_EMAIL = 1
+        private const val LAYOUT_VERIFY_CODE = 2
+        private var LAYOUT_KEY = LAYOUT_EMAIL
+
 
         fun onUpdated(context: Context, user: User) {
+            LAYOUT_KEY = LAYOUT_EMAIL
+
             val view = LayoutInflater.from(context)
                 .inflate(R.layout.sweet_alert_dialog_edit_email, null)
 
@@ -35,29 +44,45 @@ class EditEmail {
             sweetAlertDialog.cancelText = "Cancel"
             sweetAlertDialog.confirmText = "Done"
             sweetAlertDialog.setOnShowListener {
+                when (LAYOUT_KEY) {
+                    LAYOUT_EMAIL -> {
+                        binding.layoutEmail.visibility = View.VISIBLE
+                        binding.layoutVerificationCode.visibility = View.GONE
+                    }
+                    LAYOUT_VERIFY_CODE -> {
+                        binding.layoutEmail.visibility = View.GONE
+                        binding.layoutVerificationCode.visibility = View.VISIBLE
+                    }
+                }
+
                 binding.ibClose.setOnClickListener { onClose() }
 
                 onTextWatcher()
             }
             sweetAlertDialog.setCancelClickListener { onClose() }
             sweetAlertDialog.setConfirmClickListener {
-                val currentPassword = binding.etCurrentPassword.text.toString()
-                val newEmail = binding.etEmail.text.toString()
+                when (LAYOUT_KEY) {
+                    LAYOUT_EMAIL -> {
+                        val currentPassword = binding.etCurrentPassword.text.toString()
+                        val newEmail = binding.etEmail.text.toString()
 
-                if (newEmail == user.email) binding.tilEmail.error =
-                    "Email has been used on your account."
-                else
-                    reAuth(
-                        context,
-                        User(
-                            user.uid,
-                            user.username,
-                            newEmail,
-                            currentPassword,
-                            "${user.email}",
-                            user.two_factor_auth
-                        )
-                    )
+                        if (newEmail == user.email) binding.tilEmail.error =
+                            "Email has been used on your account."
+                        else
+                            reAuth(
+                                context,
+                                User(
+                                    user.uid,
+                                    user.username,
+                                    newEmail,
+                                    currentPassword,
+                                    "${user.email}",
+                                    user.two_factor_auth
+                                )
+                            )
+                    }
+                }
+
             }
             sweetAlertDialog.show()
             ManagerCallback.initCustomSweetAlertDialog(context, view, sweetAlertDialog)
@@ -73,34 +98,26 @@ class EditEmail {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful)
-                        when (response.body()!!.code) {
-                            200 -> checkEmailExist(context, user)
-                            400 -> {
-                                binding.progressBar.visibility = View.GONE
-                                binding.tilCurrentPassword.error =
-                                    response.body()!!.errorValidation.password
-                            }
-                        }
-                    else {
-                        if (response.message().contains("Not Found"))
-                            binding.tilCurrentPassword.error = "Your current password was wrong."
-                        else
-                            ManagerCallback.onSweetAlertDialogWarning(
-                                context,
-                                response.message()
-                            )
-                        binding.progressBar.visibility = View.GONE
+                    when (response.code()) {
+                        200 -> checkEmailExist(context, user)
+                        400 -> binding.tilCurrentPassword.error =
+                            ManagerCallback.getErrorBody(response)!!.errorValidation.password
+                        404 -> binding.tilCurrentPassword.error = KeyStore.CURRENT_PASSWORD_WRONG
+                        500 -> ManagerCallback.onSweetAlertDialogWarning(
+                            context,
+                            response.message()
+                        )
                     }
 
-                    ManagerCallback.onLog("reAuth_Email", "$response", "${response.body()}")
+                    binding.progressBar.visibility = View.GONE
+                    ManagerCallback.onLog("reAuth_Email", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.progressBar.visibility = View.GONE
                     ManagerCallback.onSweetAlertDialogWarning(
                         context,
-                        "Can't Change Email.\nSomething Wrong with server connection"
+                        "Can't Change Email.\n${KeyStore.ON_FAILURE}"
                     )
                     ManagerCallback.onLog("reAuth_Email", "${t.message}")
                 }
@@ -108,37 +125,121 @@ class EditEmail {
         }
 
         private fun checkEmailExist(context: Context, user: User) {
+            binding.progressBar.visibility = View.VISIBLE
             RestfulAPIService.requestMethod().checkEmailExist(user.email).enqueue(object :
                 Callback<RestfulAPIResponse> {
                 override fun onResponse(
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful)
-                        when (response.body()!!.code) {
-                            200 -> ProfileCallback.onUpdateValues(
+                    when (response.code()) {
+                        200 -> {
+                            val code = ManagerCallback.onGenerateTokenCode()
+                            changeLayout(context, user, code)
+                            ManagerCallback.sendVerificationCode(
                                 context,
-                                sweetAlertDialog,
                                 user,
-                                ProfileCallback.KEY_EMAIL
+                                "Verify Change Email code",
+                                code
                             )
-                            400 -> binding.tilEmail.error = response.body()!!.errorValidation.email
+                            countDownTimer(context, user)
                         }
-                    else
-                        ManagerCallback.onSweetAlertDialogWarning(context, response.message())
+                        400 -> binding.tilEmail.error =
+                            ManagerCallback.getErrorBody(response)!!.errorValidation.email
+                        500 -> ManagerCallback.onSweetAlertDialogWarning(
+                            context,
+                            response.message()
+                        )
+                    }
 
                     binding.progressBar.visibility = View.GONE
-                    ManagerCallback.onLog("checkEmail", "$response", "${response.body()}")
+                    ManagerCallback.onLog("checkEmailExists", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.progressBar.visibility = View.GONE
-                    Log.d("checkEmail-EditEmail", t.message!!)
-                    ManagerCallback.onSweetAlertDialogWarning(context, "Can't CheckEmailExist.\n" +
-                            "Something Wrong with server connection")
-                    ManagerCallback.onLog("checkEmail", "${t.message}")
+                    ManagerCallback.onSweetAlertDialogWarning(
+                        context,
+                        "Can't CheckEmailExist.\n${KeyStore.ON_FAILURE}"
+                    )
+                    ManagerCallback.onLog("checkEmailExists", "${t.message}")
                 }
             })
+        }
+
+        private fun changeLayout(context: Context, user: User, code: String) {
+            LAYOUT_KEY = LAYOUT_VERIFY_CODE
+            if (LAYOUT_KEY == LAYOUT_VERIFY_CODE) {
+                binding.layoutEmail.visibility = View.GONE
+                binding.layoutVerificationCode.visibility = View.VISIBLE
+
+                sweetAlertDialog.setConfirmClickListener {
+                    val inputCode = binding.etVerificationCode.text.toString()
+
+                    if (inputCode != code)
+                        binding.tilVerificationCode.error = "Your verification code is wrong."
+                    else {
+                        countDownTimer.cancel()
+                        ProfileCallback.onUpdateValues(
+                            context,
+                            sweetAlertDialog,
+                            user,
+                            KeyStore.KEY_EMAIL
+                        )
+                    }
+                }
+                sweetAlertDialog.setCancelClickListener {
+                    countDownTimer.cancel()
+                    onClose()
+                }
+            }
+        }
+
+        private fun countDownTimer(context: Context, user: User) {
+            countDownTimer = object : CountDownTimer(KeyStore.DELAY, KeyStore.INTERVAL) {
+                override fun onTick(millisUntilFinished: Long) {
+                    binding.tvResendCode.isEnabled = false
+                    binding.tvResendCode.text = ManagerCallback.elapsedTimeVerificationCode(
+                        millisUntilFinished.div(
+                            KeyStore.INTERVAL
+                        )
+                    )
+                    binding.tvResendCode.setTextColor(
+                        context.resources.getColor(
+                            R.color.white_70,
+                            context.theme
+                        )
+                    )
+                }
+
+                override fun onFinish() {
+                    binding.tvResendCode.isEnabled = true
+                    binding.tvResendCode.text = "Resend verification code."
+                    binding.tvResendCode.setTextColor(
+                        context.resources.getColor(
+                            R.color.white,
+                            context.theme
+                        )
+                    )
+
+                    val currentCode = ManagerCallback.onGenerateTokenCode()
+                    changeLayout(context, user, currentCode)
+
+                    binding.tvResendCode.setOnClickListener {
+                        val newCode = ManagerCallback.onGenerateTokenCode()
+                        changeLayout(context, user, newCode)
+                        ManagerCallback.sendVerificationCode(
+                            context,
+                            user,
+                            "Verify Change Email code",
+                            newCode
+                        )
+                        countDownTimer(context, user)
+                    }
+                }
+            }
+
+            countDownTimer.start()
         }
 
         private fun onTextWatcher() {
@@ -180,5 +281,6 @@ class EditEmail {
         private fun onClose() {
             sweetAlertDialog.dismissWithAnimation()
         }
+
     }
 }

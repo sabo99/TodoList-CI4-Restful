@@ -37,6 +37,16 @@ class MainActivity : AppCompatActivity() {
     private var isEnableMenuItem = false
     private var isVisibleMenuItem = false
 
+    override fun onResume() {
+        super.onResume()
+        ManagerCallback.checkSelfMACAddressAuthentication(this)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        ManagerCallback.checkSelfMACAddressAuthentication(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -57,9 +67,14 @@ class MainActivity : AppCompatActivity() {
             Handler().postDelayed({
                 binding.swipeRefresh.isRefreshing = false
                 loadTodoList()
+                onResume()
             }, 2000)
         }
 
+        binding.btnCreateNewTodo.setOnClickListener {
+            if (checkEnableMenu("Cannot create new todo"))
+                TodoCallback.onCreated(this, user)
+        }
         binding.fabAdd.setOnClickListener {
             if (checkEnableMenu("Cannot create new todo"))
                 TodoCallback.onCreated(this, user)
@@ -104,6 +119,8 @@ class MainActivity : AppCompatActivity() {
         binding.fabAdd.hide()
         binding.shimmerLayout.visibility = View.VISIBLE
         binding.rvTodoList.visibility = View.GONE
+        binding.lottieEmptyTodoList.visibility = View.GONE
+        binding.lottieInternalServerError.visibility = View.GONE
         binding.shimmerLayout.startShimmer()
 
         Handler().postDelayed({ loadTodoList() }, 500)
@@ -117,36 +134,43 @@ class MainActivity : AppCompatActivity() {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful) {
-                        if (response.body()!!.todoList.isNotEmpty()) {
+                    when (response.code()) {
+                        200 -> {
                             binding.rvTodoList.adapter =
                                 TodoListAdapter(this@MainActivity, response.body()!!.todoList)
                             binding.rvTodoList.visibility = View.VISIBLE
+                            binding.fabAdd.show()
                             binding.lottieEmptyTodoList.visibility = View.GONE
                             binding.lottieInternalServerError.visibility = View.GONE
-                        } else {
+                        }
+                        /** Not Found (404)
+                         * TodoList isEmpty
+                         */
+                        404 -> {
                             binding.rvTodoList.visibility = View.GONE
+                            binding.fabAdd.hide()
                             binding.lottieEmptyTodoList.visibility = View.VISIBLE
                             binding.lottieInternalServerError.visibility = View.GONE
                         }
 
-                    } else {
                         /** Internal Server Error (500)
                          * MySQL Shutdown
                          */
-                        binding.rvTodoList.visibility = View.GONE
-                        binding.lottieEmptyTodoList.visibility = View.GONE
-                        binding.lottieInternalServerError.visibility = View.VISIBLE
+                        500 -> {
+                            binding.rvTodoList.visibility = View.GONE
+                            binding.fabAdd.hide()
+                            binding.lottieEmptyTodoList.visibility = View.GONE
+                            binding.lottieInternalServerError.visibility = View.VISIBLE
+                        }
                     }
                     binding.shimmerLayout.visibility = View.GONE
-                    binding.fabAdd.show()
 
-                    ManagerCallback.onLog("showTodo", "$response", "${response.body()}")
+                    ManagerCallback.onLog("showTodo", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
                     binding.shimmerLayout.visibility = View.GONE
-                    binding.fabAdd.show()
+                    binding.fabAdd.hide()
 
                     binding.rvTodoList.visibility = View.GONE
                     binding.lottieEmptyTodoList.visibility = View.GONE
@@ -176,13 +200,13 @@ class MainActivity : AppCompatActivity() {
                             finish()
                         }
                         sweet.show()
-                        ManagerCallback.initCustomSweetAlertDialog(this@MainActivity, null, sweet)
+                        ManagerCallback.initCustomSweetAlertDialog(this@MainActivity, sweet)
                     }
                 }
                 isEnableMenuItem = true
                 isVisibleMenuItem = true
                 invalidateOptionsMenu()
-                ManagerCallback.onLog("showUser", "$response", "${response.body()}")
+                ManagerCallback.onLog("showUser", response)
             }
 
             override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
@@ -195,7 +219,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-
 
     override fun onStart() {
         super.onStart()

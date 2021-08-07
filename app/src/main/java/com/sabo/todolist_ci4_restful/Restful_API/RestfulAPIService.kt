@@ -7,7 +7,7 @@ class RestfulAPIService {
     companion object {
         private var retrofit: Retrofit? = null
 
-        private const val BASE_URL = "http://192.168.1.7"
+        private const val BASE_URL = "http://192.168.1.5"
         private const val DIR = "Restful-API/todolist-ci4-restful/public"
 
         private const val URL = "$BASE_URL/$DIR/"

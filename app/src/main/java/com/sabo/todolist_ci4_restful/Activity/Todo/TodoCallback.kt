@@ -7,6 +7,7 @@ import android.os.Handler
 import android.widget.Toast
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Model.Todo
 import com.sabo.todolist_ci4_restful.Model.User
@@ -20,10 +21,6 @@ import retrofit2.Response
 class TodoCallback {
     companion object {
 
-        fun getURLImage(image: String): String {
-            return RestfulAPIService.IMG_TODO_URL + image
-        }
-
         fun onCreated(context: Context, user: User) {
             context.startActivity(Intent(context, CreateTodo::class.java).putExtra("user", user))
         }
@@ -31,7 +28,7 @@ class TodoCallback {
         fun onShowed(context: Context, id: Int) {
             ManagerCallback.onStartSweetLoading(
                 context,
-                "Load todo id : ${ManagerCallback.onTagNumber(id)}"
+                "Load todo id : ${ManagerCallback.onHashNumber(id)}"
             )
             RestfulAPIService.requestMethod().editTodo(id).enqueue(object :
                 Callback<RestfulAPIResponse> {
@@ -53,10 +50,12 @@ class TodoCallback {
 
                     } else
                         ManagerCallback.onFailureSweetLoading(response.message())
+                    ManagerCallback.onLog("editTodo", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                    ManagerCallback.onFailureSweetLoading(t.message!!)
+                    ManagerCallback.onFailureSweetLoading(KeyStore.ON_FAILURE)
+                    ManagerCallback.onLog("editTodo", "${t.message}")
                 }
             })
         }
@@ -66,6 +65,7 @@ class TodoCallback {
                 Intent(context, EditTodo::class.java)
                     .putExtra("todo", todo)
             )
+            ManagerCallback.onCreateLogUser(todo.uid, KeyStore.EDIT_TODO)
         }
 
         fun onDeleted(context: Context, todo: Todo) {
@@ -94,18 +94,21 @@ class TodoCallback {
                                     (context as Activity).finish()
                                     EventBus.getDefault().postSticky(EventOnRefresh(true, null))
                                 }, 2000)
+                                ManagerCallback.onCreateLogUser(todo.uid, KeyStore.DELETE_TODO)
                             } else
                                 ManagerCallback.onFailureSweetLoading(response.message())
+                            ManagerCallback.onLog("deleteTodo", response)
                         }
 
                         override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                            ManagerCallback.onFailureSweetLoading("Can't Delete Todo.\nSomething wrong with server connection")
+                            ManagerCallback.onFailureSweetLoading("Can't Delete Todo.\n${KeyStore.ON_FAILURE}")
+                            ManagerCallback.onLog("deleteTodo", "${t.message}")
                         }
 
                     })
             }
             sweet.show()
-            ManagerCallback.initCustomSweetAlertDialog(context, null, sweet)
+            ManagerCallback.initCustomSweetAlertDialog(context, sweet)
         }
 
         fun onFinish(context: Context, sweetAlertDialog: SweetAlertDialog) {

@@ -6,6 +6,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
 import com.sabo.todolist_ci4_restful.Model.User
@@ -26,6 +27,16 @@ class Profile : AppCompatActivity() {
 
     private lateinit var binding: ActivityProfileBinding
     private lateinit var user: User
+
+    override fun onResume() {
+        super.onResume()
+        ManagerCallback.checkSelfMACAddressAuthentication(this)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        ManagerCallback.checkSelfMACAddressAuthentication(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,54 +72,51 @@ class Profile : AppCompatActivity() {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.title = "My Account"
 
-        val uid = ManagerPreferences.getUID(this)
-
         binding.progressBar.visibility = View.VISIBLE
 
-        RestfulAPIService.requestMethod().showUser(uid)
+        RestfulAPIService.requestMethod().showUser(ManagerPreferences.getUID(this))
             .enqueue(object : Callback<RestfulAPIResponse> {
                 override fun onResponse(
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful) {
-                        user = response.body()!!.user
-                        Picasso.get().load(RestfulAPIService.AVATAR_TODO_URL + user.avatar)
-                            .placeholder(
-                                R.drawable.ic_round_person_black
-                            ).into(binding.civAvatar)
+                    when(response.code()){
+                        200 -> {
+                            user = response.body()!!.user
+                            Picasso.get().load(user.avatar?.let { ManagerCallback.getURLAvatar(it) })
+                                .placeholder(
+                                    R.drawable.ic_round_person_black
+                                ).into(binding.civAvatar)
 
-                        binding.tvProfileUsername.text =
-                            StringBuilder().append(user.username).append("\n")
-                                .append(ManagerCallback.onTagNumber(user.uid)).toString()
-                        binding.tvUsername.text = StringBuilder().append(user.username)
-                            .append(ManagerCallback.onTagNumber(user.uid)).toString()
-                        binding.tvEmail.text = user.email
+                            binding.tvProfileUsername.text =
+                                StringBuilder().append(user.username).append("\n")
+                                    .append(ManagerCallback.onHashNumber(user.uid)).toString()
+                            binding.tvUsername.text = StringBuilder().append(user.username)
+                                .append(ManagerCallback.onHashNumber(user.uid)).toString()
+                            binding.tvEmail.text = user.email
 
-                        if (user.two_factor_auth == 0) {
-                            binding.btnTwoFactorAuth.text = "Enable Two-Factor Auth"
-                            binding.btnTwoFactorAuth.backgroundTintList = ColorStateList.valueOf(
-                                resources.getColor(
-                                    R.color.royal_blue,
-                                    theme
+                            if (user.two_factor_auth == 0) {
+                                binding.btnTwoFactorAuth.text = "Enable Two-Factor Auth"
+                                binding.btnTwoFactorAuth.backgroundTintList = ColorStateList.valueOf(
+                                    resources.getColor(
+                                        R.color.royal_blue,
+                                        theme
+                                    )
                                 )
-                            )
-                        } else {
-                            binding.btnTwoFactorAuth.text = "Disable Two-Factor Auth"
-                            binding.btnTwoFactorAuth.backgroundTintList =
-                                ColorStateList.valueOf(resources.getColor(R.color.red, theme))
-                        }
+                            } else {
+                                binding.btnTwoFactorAuth.text = "Disable Two-Factor Auth"
+                                binding.btnTwoFactorAuth.backgroundTintList =
+                                    ColorStateList.valueOf(resources.getColor(R.color.red, theme))
+                            }
 
-                        isEnabledBtn(true)
-                    } else {
-                        isEnabledBtn(false)
-                        ManagerCallback.onSweetAlertDialogWarning(
-                            this@Profile,
-                            "Something wrong with server connection",
-                        )
+                            isEnabledBtn(true)
+                        }
+                        404 -> isEnabledBtn(false)
+
                     }
+
                     binding.progressBar.visibility = View.GONE
-                    ManagerCallback.onLog("Profile", "$response", "${response.body()}")
+                    ManagerCallback.onLog("Profile", response)
                 }
 
                 override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
@@ -119,28 +127,27 @@ class Profile : AppCompatActivity() {
             })
 
         binding.btnEditProfile.setOnClickListener {
-            ProfileCallback.onEdited(this, user, ProfileCallback.KEY_PROFILE)
+            ProfileCallback.onEdited(this, user, KeyStore.KEY_PROFILE)
         }
 
         binding.btnEditUsername.setOnClickListener {
-            ProfileCallback.onEdited(this, user, ProfileCallback.KEY_USERNAME)
+            ProfileCallback.onEdited(this, user, KeyStore.KEY_USERNAME)
         }
 
         binding.btnEditEmail.setOnClickListener {
-            ProfileCallback.onEdited(this, user, ProfileCallback.KEY_EMAIL)
+            ProfileCallback.onEdited(this, user, KeyStore.KEY_EMAIL)
         }
 
         binding.btnChangePassword.setOnClickListener {
-            ProfileCallback.onEdited(this, user, ProfileCallback.KEY_PASSWORD)
+            ProfileCallback.onEdited(this, user, KeyStore.KEY_PASSWORD)
         }
 
         binding.btnTwoFactorAuth.setOnClickListener {
-            ProfileCallback.onEdited(this, user, ProfileCallback.KEY_TWO_FACTOR_AUTH)
+            ProfileCallback.onEdited(this, user, KeyStore.KEY_TWO_FACTOR_AUTH)
         }
 
         binding.btnDeleteAccount.setOnClickListener {
             ProfileCallback.onDeleteAccount(this)
-
         }
 
         binding.btnLogout.setOnClickListener {

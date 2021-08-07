@@ -5,6 +5,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
+import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
 import com.sabo.todolist_ci4_restful.Model.Todo
 import com.sabo.todolist_ci4_restful.R
@@ -54,7 +55,7 @@ class DetailTodo : AppCompatActivity() {
         uid = ManagerPreferences.getUID(this)
         todo = intent.getParcelableExtra("todo")
 
-        Picasso.get().load(TodoCallback.getURLImage(todo.image)).into(binding.ivImage)
+        Picasso.get().load(ManagerCallback.getURLImage(todo.image)).into(binding.ivImage)
         binding.tvTitle.text = todo.title
         binding.tvDesc.text = todo.desc
         if (todo.updated_at == null)
@@ -78,7 +79,7 @@ class DetailTodo : AppCompatActivity() {
         if (event.onRefresh){
 
             todo = event.value as Todo
-            Picasso.get().load(TodoCallback.getURLImage(todo.image)).into(binding.ivImage)
+            Picasso.get().load(ManagerCallback.getURLImage(todo.image)).into(binding.ivImage)
             binding.tvTitle.text = todo.title
             binding.tvDesc.text = todo.desc
 

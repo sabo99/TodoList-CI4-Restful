@@ -14,5 +14,6 @@ data class ErrorValidation(
     var id: Int,
     var title: String,
     var desc: String,
-    var image: String
+    var image: String,
+    val mac_address: String,
 ): Parcelable

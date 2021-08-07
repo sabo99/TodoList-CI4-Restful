@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
@@ -20,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
 import com.sabo.todolist_ci4_restful.Helper.Callback.FileUtilsCallback
+import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
 import com.sabo.todolist_ci4_restful.Model.Todo
@@ -70,7 +70,7 @@ class EditTodo : AppCompatActivity() {
         sweetAlertDialog.confirmText = "Update"
         sweetAlertDialog.setOnShowListener {
 
-            Picasso.get().load(TodoCallback.getURLImage(todo.image)).into(binding.ivImage)
+            Picasso.get().load(ManagerCallback.getURLImage(todo.image)).into(binding.ivImage)
             binding.etTitle.setText(todo.title)
             binding.etDesc.setText(todo.desc)
 
@@ -98,7 +98,7 @@ class EditTodo : AppCompatActivity() {
             sweet.show()
             sweet.findViewById<Button>(R.id.confirm_button)
                 .setBackgroundResource(R.drawable.confirm_button_background)
-            ManagerCallback.initCustomSweetAlertDialog(this, null, sweet)
+            ManagerCallback.initCustomSweetAlertDialog(this, sweet)
 
         }
         sweetAlertDialog.show()
@@ -156,7 +156,7 @@ class EditTodo : AppCompatActivity() {
             arrayOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ), ManagerCallback.MULTIPLE_PERMISSION
+            ), KeyStore.MULTIPLE_PERMISSION
         )
     }
 
@@ -190,59 +190,57 @@ class EditTodo : AppCompatActivity() {
                         call: Call<RestfulAPIResponse>,
                         response: Response<RestfulAPIResponse>
                     ) {
-                        if (response.isSuccessful) {
-                            when (response.body()!!.code) {
-                                200 -> {
-                                    /**
-                                     * Update TodoList
-                                     * Value : Title, Desc
-                                     */
-                                    if (todo.image.isEmpty())
-                                        Handler().postDelayed({
-                                            TodoCallback.onFinish(
-                                                this@EditTodo,
-                                                sweetAlertDialog
-                                            )
-                                            Toast.makeText(
-                                                this@EditTodo,
-                                                response.message(),
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                            EventBus.getDefault()
-                                                .postSticky(
-                                                    EventOnRefresh(
-                                                        true,
-                                                        response.body()!!.todo
-                                                    )
+                        when (response.code()) {
+                            200 -> {
+                                /**
+                                 * Update TodoList
+                                 * Value : Title, Desc
+                                 */
+                                if (todo.image.isEmpty())
+                                    Handler().postDelayed({
+                                        TodoCallback.onFinish(
+                                            this@EditTodo,
+                                            sweetAlertDialog
+                                        )
+                                        Toast.makeText(
+                                            this@EditTodo,
+                                            response.message(),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        EventBus.getDefault()
+                                            .postSticky(
+                                                EventOnRefresh(
+                                                    true,
+                                                    response.body()!!.todo
                                                 )
-                                            ManagerCallback.onStopSweetLoading()
-                                        }, 2000)
+                                            )
+                                        ManagerCallback.onStopSweetLoading()
+                                    }, 2000)
 
-                                    /**
-                                     * Update & Upload TodoList
-                                     * Value : Title, Desc, Image
-                                     */
-                                    else
-                                        onUpload(todo)
+                                /**
+                                 * Update & Upload TodoList
+                                 * Value : Title, Desc, Image
+                                 */
+                                else
+                                    onUpload(todo)
 
-                                }
-                                400 -> {
-                                    ManagerCallback.onStopSweetLoading()
-                                    val errors = response.body()!!.errorValidation
-
-                                    binding.tilTitle.error = errors.title
-                                    binding.tilDesc.error = errors.desc
-                                }
+                                ManagerCallback.onCreateLogUser(todo.uid, KeyStore.UPDATE_TODO)
                             }
-                        } else
-                            ManagerCallback.onFailureSweetLoading(response.message())
+                            400 -> {
+                                ManagerCallback.onStopSweetLoading()
+                                val errors = response.body()!!.errorValidation
 
-                        Log.d("updateTodo-onResponse", response.body().toString())
+                                binding.tilTitle.error = errors.title
+                                binding.tilDesc.error = errors.desc
+                            }
+                            500 -> ManagerCallback.onFailureSweetLoading(response.message())
+                        }
+                        ManagerCallback.onLog("updateTodo", response)
                     }
 
                     override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                        ManagerCallback.onFailureSweetLoading("Cannot update todo.\nSomething wrong with server connection")
-                        Log.d("updateTodo-onFailure", t.message!!)
+                        ManagerCallback.onFailureSweetLoading("Cannot update todo.\n${KeyStore.ON_FAILURE}")
+                        ManagerCallback.onLog("updateTodo", "${t.message}")
                     }
                 })
     }
@@ -265,37 +263,33 @@ class EditTodo : AppCompatActivity() {
                 call: Call<RestfulAPIResponse>,
                 response: Response<RestfulAPIResponse>
             ) {
-                if (response.isSuccessful) {
-                    when (response.body()!!.code) {
-                        200 -> {
-                            Handler().postDelayed({
-                                ManagerCallback.onStopSweetLoading()
-                                TodoCallback.onFinish(
-                                    this@EditTodo,
-                                    sweetAlertDialog
-                                )
-                                Toast.makeText(
-                                    this@EditTodo,
-                                    response.message(),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                EventBus.getDefault()
-                                    .postSticky(EventOnRefresh(true, response.body()!!.todo))
-                            }, 2000)
-                        }
-
-                        400 -> {
-                            binding.tilImage.text = response.body()!!.message
-                        }
+                when (response.body()!!.code) {
+                    200 -> {
+                        Handler().postDelayed({
+                            ManagerCallback.onStopSweetLoading()
+                            TodoCallback.onFinish(
+                                this@EditTodo,
+                                sweetAlertDialog
+                            )
+                            Toast.makeText(
+                                this@EditTodo,
+                                response.message(),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            EventBus.getDefault()
+                                .postSticky(EventOnRefresh(true, response.body()!!.todo))
+                        }, 2000)
                     }
-                } else
-                    ManagerCallback.onFailureSweetLoading(response.message())
-                Log.d("uploadTodo-onResponse", response.body().toString())
+
+                    400 -> binding.tilImage.text = ManagerCallback.getErrorBody(response)!!.message
+                    500 -> ManagerCallback.onFailureSweetLoading(response.message())
+                }
+                ManagerCallback.onLog("uploadTodo", response)
             }
 
             override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
-                Log.d("uploadTodo-onResponse", t.message!!)
-                ManagerCallback.onFailureSweetLoading("Cannot update todo.\nSomething wrong with server connection")
+                ManagerCallback.onLog("uploadTodo", "${t.message}")
+                ManagerCallback.onFailureSweetLoading("Cannot update todo.\n${KeyStore.ON_FAILURE}")
             }
 
         })
@@ -307,7 +301,7 @@ class EditTodo : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == ManagerCallback.MULTIPLE_PERMISSION) {
+        if (requestCode == KeyStore.MULTIPLE_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] + grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
 
