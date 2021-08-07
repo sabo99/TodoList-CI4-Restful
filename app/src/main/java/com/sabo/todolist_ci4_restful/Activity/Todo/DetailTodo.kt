@@ -72,7 +72,14 @@ class DetailTodo : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         EventBus.getDefault().unregister(this)
+        ManagerCallback.onStopCheckSelfMacAddress()
     }
+
+    override fun onResume() {
+        super.onResume()
+        ManagerCallback.onStartCheckSelfMACAddress(this)
+    }
+
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     fun onRefreshEvent(event: EventOnRefresh){

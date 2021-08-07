@@ -39,6 +39,15 @@ class EditProfile : AppCompatActivity() {
     private lateinit var user: User
     private var filePath: String = ""
 
+    override fun onResume() {
+        super.onResume()
+        ManagerCallback.onStartCheckSelfMACAddress(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        ManagerCallback.onStopCheckSelfMacAddress()
+    }
 
     override fun finish() {
         super.finish()

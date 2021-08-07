@@ -46,6 +46,16 @@ class EditTodo : AppCompatActivity() {
     private var uid = 0
     private var filePath: String = ""
 
+    override fun onResume() {
+        super.onResume()
+        ManagerCallback.onStartCheckSelfMACAddress(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        ManagerCallback.onStopCheckSelfMacAddress()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_null)

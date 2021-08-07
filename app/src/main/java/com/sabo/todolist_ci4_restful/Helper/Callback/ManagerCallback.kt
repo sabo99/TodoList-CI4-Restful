@@ -37,6 +37,7 @@ class ManagerCallback {
         private lateinit var contentText: TextView
         private lateinit var confirmButton: Button
         private lateinit var cancelButton: Button
+        private lateinit var timer: Timer
 
         fun onStartSweetLoading(context: Context, content: String) {
             sweetLoading = SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE)
@@ -208,8 +209,10 @@ class ManagerCallback {
                     sender.sendMail(
                         "$subject : $code",
                         "This code will expire in 2 minutes.",
-                        Credentials.EMAIL_SENDER,   /** Sender */
-                        user.email                  /** Recipient */
+                        Credentials.EMAIL_SENDER,
+                        /** Sender */
+                        user.email
+                        /** Recipient */
                     )
 
                     (context as Activity).runOnUiThread {
@@ -236,8 +239,10 @@ class ManagerCallback {
                                 "The previous email address is ${user.avatar} and the new address is ${user.email}. " +
                                 "If there is an error changing your email address, please contact your Workspace Admin. " +
                                 "Thank you!",
-                        Credentials.EMAIL_SENDER, /** Sender */
-                        user.email                /** Recipient */
+                        Credentials.EMAIL_SENDER,
+                        /** Sender */
+                        user.email
+                        /** Recipient */
                     )
                 } catch (e: Exception) {
                     onLog("SendEmail", "${e.message}")
@@ -277,8 +282,22 @@ class ManagerCallback {
             return result
         }
 
-        fun checkSelfMACAddressAuthentication(context: Context) {
-            RestfulAPIService.requestMethod().getMacAddress(ManagerPreferences.getUID(context))
+        fun onStartCheckSelfMACAddress(context: Context) {
+            timer = Timer()
+            timer.schedule(object : TimerTask(){
+                override fun run() {
+                    checkMacAddress(context, timer)
+                }
+            }, 0 , 5000)
+        }
+
+        fun onStopCheckSelfMacAddress(){
+            timer.cancel()
+        }
+
+        private fun checkMacAddress(context: Context, timer: Timer) {
+            RestfulAPIService.requestMethod()
+                .getMacAddress(ManagerPreferences.getUID(context))
                 .enqueue(
                     object : Callback<RestfulAPIResponse> {
                         override fun onResponse(
@@ -287,12 +306,17 @@ class ManagerCallback {
                         ) {
                             if (response.isSuccessful) {
                                 if (getCurrentMacAddress() != response.body()!!.logUsers.mac_address) {
+                                    /** When Mac Address Not Equal, Stop Timer */
                                     val sweet =
-                                        SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                                        SweetAlertDialog(
+                                            context,
+                                            SweetAlertDialog.WARNING_TYPE
+                                        )
                                     sweet.titleText = "Oops!"
                                     sweet.contentText =
                                         "Your account already login in another device"
                                     sweet.setConfirmClickListener {
+                                        sweet.dismissWithAnimation()
                                         ManagerPreferences.clearUserPreferences(context)
                                         val i = Intent(context, Login::class.java)
                                         i.flags =
@@ -302,12 +326,17 @@ class ManagerCallback {
                                     }
                                     sweet.show()
                                     initCustomSweetAlertDialog(context, sweet)
+
+                                    timer.cancel()
                                 }
                             }
                             onLog("checkSelfMacAddress", response)
                         }
 
-                        override fun onFailure(call: Call<RestfulAPIResponse>, t: Throwable) {
+                        override fun onFailure(
+                            call: Call<RestfulAPIResponse>,
+                            t: Throwable
+                        ) {
                             onLog("checkSelfMacAddress", "${t.message}")
                         }
                     })

@@ -37,16 +37,6 @@ class MainActivity : AppCompatActivity() {
     private var isEnableMenuItem = false
     private var isVisibleMenuItem = false
 
-    override fun onResume() {
-        super.onResume()
-        ManagerCallback.checkSelfMACAddressAuthentication(this)
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        ManagerCallback.checkSelfMACAddressAuthentication(this)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -225,9 +215,15 @@ class MainActivity : AppCompatActivity() {
         EventBus.getDefault().register(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        ManagerCallback.onStartCheckSelfMACAddress(this)
+    }
+
     override fun onStop() {
         super.onStop()
         EventBus.getDefault().unregister(this)
+        ManagerCallback.onStopCheckSelfMacAddress()
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)

@@ -45,6 +45,16 @@ class CreateTodo : AppCompatActivity() {
     private lateinit var user: User
     private var filePath: String = ""
 
+    override fun onResume() {
+        super.onResume()
+        ManagerCallback.onStartCheckSelfMACAddress(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        ManagerCallback.onStopCheckSelfMacAddress()
+    }
+
     override fun onBackPressed() {
         super.onBackPressed()
         TodoCallback.onFinish(this, sweetAlertDialog)
