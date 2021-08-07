@@ -282,6 +282,8 @@ class ManagerCallback {
             return result
         }
 
+
+        /** CheckSelf Only 1 Device Log In */
         fun onStartCheckSelfMACAddress(context: Context) {
             timer = Timer()
             timer.schedule(object : TimerTask(){
