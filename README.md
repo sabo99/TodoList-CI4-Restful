@@ -5,8 +5,8 @@ Proses **BackEnd** dari **Restful-API** menggunakan _**CodeIgniter4**_ pada link
 
 ### **Fitur Aplikasi TodoList** :
 - **_CodeIgniter4_** 
-    - `Upload Image `
-    - `Restful API`
+    - `Upload Image (MultiPart)`
+    - `Restful API (POST | GET | PUT | DELETE)`
 - **API JavaMail** (_Gmail Verification Code_)
   - `Log In with 2nd Auth`
   - `Edit User`
