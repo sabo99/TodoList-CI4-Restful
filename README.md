@@ -5,7 +5,7 @@ Aplikasi TodoList Android menggunakkan Code Igniter4 berbasis Restful-API. Aplik
 # Design UI App TodoList
 
 ### Login (Activity)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/LogIn.jpg" width="300" height="500"/>
+<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/LogIn.jpg" width="250" height="500"/>
 
 #
 
