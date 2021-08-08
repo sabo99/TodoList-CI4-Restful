@@ -42,7 +42,7 @@ Aplikasi TodoList Android menggunakkan Code Igniter4 berbasis Restful-API. Aplik
 #
 
 ### Delete Todo (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Edit-Todo.jpg" width="250" height="450"/>
+<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Delete-Todo.jpg" width="250" height="450"/>
 
 #
 
