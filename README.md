@@ -69,7 +69,15 @@ Kemudian user (pengguna) diminta untuk menginputkan password baru beserta kode v
 #
 
 ### Edit Email (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Edit-Email.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Send-Verification-Code_Change-Email.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Success-Send-Verification-Code_Change-Email.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Verify-Change-Email.jpg" width="250" height="450"/> 
+<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Edit-Email.jpg" width="250" height="450"/> 
+
+Setelah menginput "new email address" dan "current password", sistem akan mengirimkan kode verifikasi melalui email tersebut dengan tampilan UI seperti dibawah ini
+
+<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Send-Verification-Code_Change-Email.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Success-Send-Verification-Code_Change-Email.jpg" width="250" height="450"/> 
+
+Kemudian user (pengguna) diminta untuk melakukan validasi terhadap kode verifikasi yang telah dikirimkan melalui email.
+
+<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Verify-Change-Email.jpg" width="250" height="450"/> 
 
 #
 
@@ -80,8 +88,14 @@ Kemudian user (pengguna) diminta untuk menginputkan password baru beserta kode v
 #
 
 ### Two Factor Authentication (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Two-Factor-Auth.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Send-Verification-Code_Two-Factor-Auth.jpg" width="250" height="450"/> 
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Success-Send-Verification-Code_Two-Factor-Auth.jpg" width="250" height="450"/> 
+<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Two-Factor-Auth.jpg" width="250" height="450"/> 
+
+Setelah menginput "current password", sistem akan mengirimkan kode verifikasi melalui email tersebut dengan tampilan UI seperti dibawah ini
+
+<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Send-Verification-Code_Two-Factor-Auth.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Success-Send-Verification-Code_Two-Factor-Auth.jpg" width="250" height="450"/> 
+
+Kemudian user (pengguna) diminta untuk melakukan validasi terhadap kode verifikasi yang telah dikirimkan melalui email.
+
 <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Verify-Two-Factor-Auth.jpg" width="250" height="450"/> 
 
 #
