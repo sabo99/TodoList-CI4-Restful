@@ -12,11 +12,11 @@ Aplikasi TodoList Android menggunakkan Code Igniter4 berbasis Restful-API. Aplik
 ### Forgot Password (Modal / SweetAlertDialog)
 <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Forgot-Password_1.jpg" width="250" height="450"/> 
 
-#### Setelah meng-input email address yang telah terdaftar di database pada form email (Forgot Password), sistem akan mengirimkan kode verifikasi melalui email tersebut dengan tampilan UI seperti dibawah ini
+Setelah meng-input email address yang telah terdaftar di database pada form email (Forgot Password), sistem akan mengirimkan kode verifikasi melalui email tersebut dengan tampilan UI seperti dibawah ini
 
 <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Send-Verification-Code_Forgot-Password.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Success-Send-Verification-Code_Forgot-Password.jpg" width="250" height="450"/>
 
-#### Kemudian user (pengguna) diminta untuk menginputkan password baru beserta kode verifikasi yang telah dikirimkan melalui email.
+Kemudian user (pengguna) diminta untuk menginputkan password baru beserta kode verifikasi yang telah dikirimkan melalui email.
 
 <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Forgot-Password_2.jpg" width="250" height="450"/>
 
