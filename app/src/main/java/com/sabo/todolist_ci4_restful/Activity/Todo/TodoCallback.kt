@@ -36,20 +36,22 @@ class TodoCallback {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    if (response.isSuccessful) {
-                        val todo = response.body()!!.todo
+                    when(response.code()){
+                        200 -> {
+                            val todo = response.body()!!.todo
 
-                        Handler().postDelayed({
-                            ManagerCallback.onStopSweetLoading()
+                            Handler().postDelayed({
+                                ManagerCallback.onStopSweetLoading()
 
-                            context.startActivity(
-                                Intent(context, DetailTodo::class.java)
-                                    .putExtra("todo", todo)
-                            )
-                        }, 2000)
-
-                    } else
-                        ManagerCallback.onFailureSweetLoading(response.message())
+                                context.startActivity(
+                                    Intent(context, DetailTodo::class.java)
+                                        .putExtra("todo", todo)
+                                )
+                            }, 2000)
+                        }
+                        404 -> ManagerCallback.onFailureSweetLoading(response.message())
+                        500 -> ManagerCallback.onFailureSweetLoading(ManagerCallback.getErrorBody(response)!!.message)
+                    }
                     ManagerCallback.onLog("editTodo", response)
                 }
 
