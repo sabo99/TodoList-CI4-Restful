@@ -1,10 +1,22 @@
 # TodoList-CI4-Restful
 Aplikasi TodoList Android menggunakkan CodeIgniter4 berbasis Restful-API. 
 
-Aplikasi TodoList ini menggunakan Sistem Autentication 2nd dengan mengirimkan sebuah kode verifikasi melalui Gmail dengan bantuan sebuah API (JavaMail API) dan Upload Gambar dengan Framework CodeIgniter 4. 
+Proses **BackEnd** dari **Restful-API** menggunakan _**CodeIgniter4**_ pada link berikut : `https://github.com/sabo99/codeigniter4_RestfulAPI_TodoList`
 
-Proses BackEnd dari Restful-API menggunakan Code Igniter4 dapat dilihat pada link berikut : https://github.com/sabo99/codeigniter4_RestfulAPI_TodoList
-
+### **Fitur Aplikasi TodoList** :
+- **_CodeIgniter4_** 
+    - `Upload Image `
+    - `Restful API`
+- **API JavaMail** (_Gmail Verification Code_)
+  - `Log In with 2nd Auth`
+  - `Edit User`
+- _**SweetAlertDialog**_
+  - `Modal Dialog with Custom Content View`
+  - `Message Dialog`
+  - `Loading Dialog`
+- **Lottie Animation**
+  - `Response Code : 404 | 500`
+    
 # Design UI App TodoList
 
 ### Login (Activity)
