@@ -8,7 +8,6 @@ class RestfulAPIService {
         private var retrofit: Retrofit? = null
 
         private const val URL = "http://192.168.1.6/Restful-API/todolist-ci4-restful/public/"
-//        private const val URL = "https://sabohao.000webhostapp.com/"
         const val IMG_TODO_URL = "${URL}assets/uploads/todoList/"
         const val AVATAR_TODO_URL = "${URL}assets/uploads/users/"
 
