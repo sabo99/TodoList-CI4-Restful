@@ -20,8 +20,8 @@ Proses **BackEnd** dari **Restful-API** menggunakan _**CodeIgniter4**_ pada link
     
 ## Important!
 ### Config JavaMail APIs
-In the file `todolist_ci4_restful/Helper/JavaMailAPI/Credentials.kt` change the following line with the email that will be used as Sender
-```
+In the file <a href="app/src/main/java/com/sabo/todolist_ci4_restful/Helper/JavaMailAPI/Credentials.kt">`Credentials.kt`</a> change the following line with the email that will be used as Sender
+```kotlin
 object Credentials {
     const val EMAIL_SENDER = "your_email"
     const val PASSWORD_SENDER = "your_password"
@@ -29,9 +29,18 @@ object Credentials {
 ```
 
 ### Change API BASE URL
-`app/src/main/java/com/sabo/todolist_ci4_restful/Restful_API/RestfulAPIService.kt`
+Change the API BASE URL in the following file <a href="app/src/main/java/com/sabo/todolist_ci4_restful/Restful_API/RestfulAPIService.kt">`RestfulAPIService.kt` <a/>
+
+```kotlin
+class RestfulAPIService {
+    companion object {
+        private const val URL = "http://192.168.1.6/Restful-API/todolist-ci4-restful/public/"
+    }
+}
+```
 
 ### Dependencies used
+```groovy
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.github.thomper:sweet-alert-dialog:1.4.0'
@@ -45,21 +54,20 @@ object Credentials {
 
     implementation 'com.sun.mail:android-mail:1.6.0'
     implementation 'com.sun.mail:android-activation:1.6.0'
+```
 
 ### Integration Step Used Binding in Kotlin
-1. Add viewBinding = true `build.gralde (Module)`
-```
+1. Add **viewBinding = true** `build.gralde (Module)`
+```groovy
 android {
-   
-   ...
-   
+  
    buildFeatures {
       viewBinding = true
    }
 }
 ```
 2. In Activity Class
-```
+```kotlin
 class MainActivity : AppCompatActivity() {
 
     /** Add this */
@@ -67,7 +75,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        /** Add this */
         binding = ActivityMainBinding.inflate(layoutInflater)
+        /** Change this */
         setContentView(binding.root)
         
         /** Without findViewById */
