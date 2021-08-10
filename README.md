@@ -16,8 +16,8 @@ Proses **BackEnd** dari **Restful-API** menggunakan _**CodeIgniter4**_ pada link
   - `Loading Dialog`
 - **Lottie Animation**
   - `Response Code : 404 | 500`
-  
-
+<br>
+    
 ## Config JavaMail APIs
 In the file `todolist_ci4_restful/Helper/JavaMailAPI/Credentials.kt` change the following line with the email that will be used as Sender
 ```
