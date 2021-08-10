@@ -17,22 +17,17 @@ Proses **BackEnd** dari **Restful-API** menggunakan _**CodeIgniter4**_ pada link
 - **Lottie Animation**
   - `Response Code : 404 | 500`
   
-# Important!
+# 
 
-
-### Integration Step Used Binding in Kotlin
-1. Tambahkan viewBinding = true `build.gralde (Module)`
+## Config JavaMail APIs
+Pada file `todolist_ci4_restful/Helper/JavaMailAPI/Credentials.kt` ubah baris berikut dengan email yang akan digunakan sebagai **Sender**
 ```
-android {
-   buildFeatures {
-      viewBinding = true
-   }
+object Credentials {
+    const val EMAIL_SENDER = "your_email"
+    const val PASSWORD_SENDER = "your_password"
 }
 ```
-2. Didalam Activity Class
-<img src="ScreenShot_App/bindingKotlin.png" width="500" height="300"/>
-    
-   binding di kotlin sudah bisa langsung dipakai tanpa melakukan insialisasi findViewById pada widget yang ada di layout xml
+
 ### Dependencies used
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
@@ -47,7 +42,23 @@ android {
 
     implementation 'com.sun.mail:android-mail:1.6.0'
     implementation 'com.sun.mail:android-activation:1.6.0'
+
+### Integration Step Used Binding in Kotlin
+1. Tambahkan viewBinding = true `build.gralde (Module)`
+```
+android {
+   buildFeatures {
+      viewBinding = true
+   }
+}
+```
+2. Didalam Activity Class
+<img src="ScreenShot_App/bindingKotlin.png" width="500" height="300"/>
     
+   **binding di kotlin** sudah bisa langsung dipakai tanpa melakukan insialisasi **findViewById** pada **widget** yang ada di **layout xml**
+
+#
+
 # Design UI App TodoList
 
 ### Login (Activity)
