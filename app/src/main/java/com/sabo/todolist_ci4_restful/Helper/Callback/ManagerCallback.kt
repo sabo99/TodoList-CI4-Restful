@@ -220,7 +220,6 @@ class ManagerCallback {
         fun sendMailSuccessChangeEmailAddress(user: User) {
             Thread(Runnable {
                 try {
-                    val sender =
                     GMailSender().sendMail(
                         "Hi, ${user.username}.",
                         "Your email has been updated to the email address used with your TodoList account. " +
