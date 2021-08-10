@@ -20,7 +20,7 @@ Proses **BackEnd** dari **Restful-API** menggunakan _**CodeIgniter4**_ pada link
 # 
 
 ## Config JavaMail APIs
-Pada file `todolist_ci4_restful/Helper/JavaMailAPI/Credentials.kt` ubah baris berikut dengan email yang akan digunakan sebagai **Sender**
+In the file `todolist_ci4_restful/Helper/JavaMailAPI/Credentials.kt` change the following line with the email that will be used as Sender
 ```
 object Credentials {
     const val EMAIL_SENDER = "your_email"
@@ -44,18 +44,36 @@ object Credentials {
     implementation 'com.sun.mail:android-activation:1.6.0'
 
 ### Integration Step Used Binding in Kotlin
-1. Tambahkan viewBinding = true `build.gralde (Module)`
+1. Add viewBinding = true `build.gralde (Module)`
 ```
 android {
+   
+   ...
+   
    buildFeatures {
       viewBinding = true
    }
 }
 ```
-2. Didalam Activity Class
-<img src="ScreenShot_App/bindingKotlin.png" width="500" height="300"/>
+2. In Activity Class
+```
+class MainActivity : AppCompatActivity() {
+
+    /** Add this */
+    private lateinit var binding: ActivityMainBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        
+        /** Without findViewById */
+        binding.tvMsg.text = "Bye bye findViewById"
+    }
+}
+```
     
-   **binding di kotlin** sudah bisa langsung dipakai tanpa melakukan insialisasi **findViewById** pada **widget** yang ada di **layout xml**
+   **binding** in kotlin can be used directly without initializing **findViewById** on widgets in layout xml
 
 #
 
