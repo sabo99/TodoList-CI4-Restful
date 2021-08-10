@@ -72,9 +72,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 ```
-    
    **binding** in kotlin can be used directly without initializing **findViewById** on widgets in layout xml
-
 #
 
 # Design UI App TodoList
