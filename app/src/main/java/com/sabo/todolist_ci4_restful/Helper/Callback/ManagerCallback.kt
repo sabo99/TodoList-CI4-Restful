@@ -201,18 +201,10 @@ class ManagerCallback {
 
             Thread(Runnable {
                 try {
-                    val sender =
-                        GMailSender(
-                            Credentials.EMAIL_SENDER,
-                            Credentials.PASSWORD_SENDER
-                        )
-                    sender.sendMail(
+                    GMailSender().sendMail(
                         "$subject : $code",
                         "This code will expire in 2 minutes.",
-                        Credentials.EMAIL_SENDER,
-                        /** Sender */
-                        user.email
-                        /** Recipient */
+                        "${user.email}"
                     )
 
                     (context as Activity).runOnUiThread {
@@ -229,20 +221,13 @@ class ManagerCallback {
             Thread(Runnable {
                 try {
                     val sender =
-                        GMailSender(
-                            Credentials.EMAIL_SENDER,
-                            Credentials.PASSWORD_SENDER
-                        )
-                    sender.sendMail(
+                    GMailSender().sendMail(
                         "Hi, ${user.username}.",
                         "Your email has been updated to the email address used with your TodoList account. " +
                                 "The previous email address is ${user.avatar} and the new address is ${user.email}. " +
                                 "If there is an error changing your email address, please contact your Workspace Admin. " +
                                 "Thank you!",
-                        Credentials.EMAIL_SENDER,
-                        /** Sender */
-                        user.email
-                        /** Recipient */
+                        "${user.email}"
                     )
                 } catch (e: Exception) {
                     onLog("SendEmail", "${e.message}")
@@ -286,14 +271,14 @@ class ManagerCallback {
         /** CheckSelf Only 1 Device Log In */
         fun onStartCheckSelfMACAddress(context: Context) {
             timer = Timer()
-            timer.schedule(object : TimerTask(){
+            timer.schedule(object : TimerTask() {
                 override fun run() {
                     checkMacAddress(context, timer)
                 }
-            }, 0 , 5000)
+            }, 0, 5000)
         }
 
-        fun onStopCheckSelfMacAddress(){
+        fun onStopCheckSelfMacAddress() {
             timer.cancel()
         }
 

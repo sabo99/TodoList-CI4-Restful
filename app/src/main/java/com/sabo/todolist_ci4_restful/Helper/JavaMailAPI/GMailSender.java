@@ -13,17 +13,13 @@ import javax.mail.internet.MimeMessage;
 
 public class GMailSender extends javax.mail.Authenticator {
     private String mailhost = "smtp.gmail.com";
-    private String user;
-    private String password;
     private Session session;
 
     static {
         Security.addProvider(new JSSEProvider());
     }
 
-    public GMailSender(String user, String password) {
-        this.user = user;
-        this.password = password;
+    public GMailSender() {
 
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");
@@ -39,14 +35,14 @@ public class GMailSender extends javax.mail.Authenticator {
     }
 
     protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(user, password);
+        return new PasswordAuthentication(Credentials.EMAIL_SENDER, Credentials.PASSWORD_SENDER);
     }
 
     public synchronized void sendMail(String subject, String body,
-                                      String sender, String recipients) throws Exception {
+                                      String recipients) throws Exception {
         MimeMessage message = new MimeMessage(session);
         DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/html"));
-        message.setSender(new InternetAddress(sender));
+        message.setSender(new InternetAddress(Credentials.EMAIL_SENDER));
         message.setSubject(subject);
         message.setDataHandler(handler);
 

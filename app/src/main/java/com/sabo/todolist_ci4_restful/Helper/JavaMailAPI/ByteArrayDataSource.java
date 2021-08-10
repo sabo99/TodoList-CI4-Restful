@@ -25,6 +25,7 @@ public class ByteArrayDataSource implements DataSource {
     public void setType(String type) {
         this.type = type;
     }
+
     @Override
     public InputStream getInputStream() throws IOException {
         return new ByteArrayInputStream(data);
