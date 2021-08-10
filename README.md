@@ -72,9 +72,8 @@ class MainActivity : AppCompatActivity() {
 }
 ```
    **binding** in kotlin can be used directly without initializing **findViewById** on widgets in layout xml
-#
 
-# Design UI App TodoList
+## Design UI App TodoList
 
 ### Login (Activity)
 <img src="ScreenShot_App/LogIn.jpg" width="250" height="450"/>
