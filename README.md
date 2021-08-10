@@ -18,7 +18,8 @@ Proses **BackEnd** dari **Restful-API** menggunakan _**CodeIgniter4**_ pada link
   - `Response Code : 404 | 500`
 <br>
     
-## Config JavaMail APIs
+## Important!
+### Config JavaMail APIs
 In the file `todolist_ci4_restful/Helper/JavaMailAPI/Credentials.kt` change the following line with the email that will be used as Sender
 ```
 object Credentials {
@@ -26,6 +27,9 @@ object Credentials {
     const val PASSWORD_SENDER = "your_password"
 }
 ```
+
+### Change API BASE URL
+`app/src/main/java/com/sabo/todolist_ci4_restful/Restful_API/RestfulAPIService.kt`
 
 ### Dependencies used
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
