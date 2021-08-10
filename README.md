@@ -57,7 +57,7 @@ class RestfulAPIService {
 ```
 
 ### Integration Step Used Binding in Kotlin
-1. Add **viewBinding = true** `build.gralde (Module)`
+1. Add **viewBinding = true** <a href="app/build.gradle">`build.gralde (Module)`</a>
 ```groovy
 android {
   
