@@ -16,109 +16,140 @@ Proses **BackEnd** dari **Restful-API** menggunakan _**CodeIgniter4**_ pada link
   - `Loading Dialog`
 - **Lottie Animation**
   - `Response Code : 404 | 500`
+  
+# Important!
+
+
+### Integration Step Used Binding in Kotlin
+1. Tambahkan viewBinding = true `build.gralde (Module)`
+```
+android {
+   buildFeatures {
+      viewBinding = true
+   }
+}
+```
+2. Didalam Activity Class
+<img src="ScreenShot_App/bindingKotlin.png" width="500" height="300"/>
+    
+   binding di kotlin sudah bisa langsung dipakai tanpa melakukan insialisasi findViewById pada widget yang ada di layout xml
+### Dependencies used
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.github.thomper:sweet-alert-dialog:1.4.0'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+    implementation "com.airbnb.android:lottie:3.7.1"
+    implementation 'org.greenrobot:eventbus:3.2.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
+
+    implementation 'com.sun.mail:android-mail:1.6.0'
+    implementation 'com.sun.mail:android-activation:1.6.0'
     
 # Design UI App TodoList
 
 ### Login (Activity)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/LogIn.jpg" width="250" height="450"/>
+<img src="ScreenShot_App/LogIn.jpg" width="250" height="450"/>
 
 #
 
 ### Forgot Password (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Forgot-Password_1.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Forgot-Password_1.jpg" width="250" height="450"/> 
 
 Setelah meng-input email address yang telah terdaftar di database pada form email (Forgot Password), sistem akan mengirimkan kode verifikasi melalui email tersebut dengan tampilan UI seperti dibawah ini
 
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Send-Verification-Code_Forgot-Password.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Success-Send-Verification-Code_Forgot-Password.jpg" width="250" height="450"/>
+<img src="ScreenShot_App/Modal_Send-Verification-Code_Forgot-Password.jpg" width="250" height="450"/> <img src="ScreenShot_App/Modal_Success-Send-Verification-Code_Forgot-Password.jpg" width="250" height="450"/>
 
 Kemudian user (pengguna) diminta untuk menginputkan password baru beserta kode verifikasi yang telah dikirimkan melalui email.
 
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Forgot-Password_2.jpg" width="250" height="450"/>
+<img src="ScreenShot_App/Forgot-Password_2.jpg" width="250" height="450"/>
 
 #
 
 ### SignUp (Activity)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/SignUp.jpg" width="250" height="450"/>
+<img src="ScreenShot_App/SignUp.jpg" width="250" height="450"/>
 
 #
 
 ### Main / Home (Activity)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Home-Shimmer.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Home-EmptyState.jpg" width="250" height="450"/> 
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Home.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Home-500.jpg" width="250" height="450"/>
+<img src="ScreenShot_App/Home-Shimmer.jpg" width="250" height="450"/> <img src="ScreenShot_App/Home-EmptyState.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Home.jpg" width="250" height="450"/> <img src="ScreenShot_App/Home-500.jpg" width="250" height="450"/>
 
 #
 
 ### Create Todo (Activity with Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Create-Todo.jpg" width="250" height="450"/>
+<img src="ScreenShot_App/Create-Todo.jpg" width="250" height="450"/>
 
 #
 
 ### Detail Todo (Activity)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Detail-Todo.jpg" width="250" height="450"/>
+<img src="ScreenShot_App/Detail-Todo.jpg" width="250" height="450"/>
 
 #
 
 ### Edit Todo (Activity with Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Edit-Todo.jpg" width="250" height="450"/>
+<img src="ScreenShot_App/Edit-Todo.jpg" width="250" height="450"/>
 
 #
 
 ### Delete Todo (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Delete-Todo.jpg" width="250" height="450"/>
+<img src="ScreenShot_App/Modal_Delete-Todo.jpg" width="250" height="450"/>
 
 #
 
 ### Profile (Activity)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Profile_1.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Profile_2.jpg" width="250" height="450"/>
+<img src="ScreenShot_App/Profile_1.jpg" width="250" height="450"/> <img src="ScreenShot_App/Profile_2.jpg" width="250" height="450"/>
 
 #
 
 ### Edit Profile (Activity with Card)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Edit-Profile.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Edit-Profile.jpg" width="250" height="450"/> 
 
 #
 
 ### Edit Username (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Edit-Username.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Modal_Edit-Username.jpg" width="250" height="450"/> 
 
 #
 
 ### Edit Email (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Edit-Email.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Modal_Edit-Email.jpg" width="250" height="450"/> 
 
 Setelah menginput "new email address" dan "current password", sistem akan mengirimkan kode verifikasi melalui email tersebut dengan tampilan UI seperti dibawah ini
 
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Send-Verification-Code_Change-Email.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Success-Send-Verification-Code_Change-Email.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Modal_Send-Verification-Code_Change-Email.jpg" width="250" height="450"/> <img src="ScreenShot_App/Modal_Success-Send-Verification-Code_Change-Email.jpg" width="250" height="450"/> 
 
 Kemudian user (pengguna) diminta untuk melakukan validasi terhadap kode verifikasi yang telah dikirimkan melalui email.
 
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Verify-Change-Email.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Modal_Verify-Change-Email.jpg" width="250" height="450"/> 
 
 #
 
 ### Edit Password (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Edit-Password.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Modal_Edit-Password.jpg" width="250" height="450"/> 
 
 
 #
 
 ### Two Factor Authentication (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Two-Factor-Auth.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Modal_Two-Factor-Auth.jpg" width="250" height="450"/> 
 
 Setelah menginput "current password", sistem akan mengirimkan kode verifikasi melalui email tersebut dengan tampilan UI seperti dibawah ini
 
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Send-Verification-Code_Two-Factor-Auth.jpg" width="250" height="450"/> <img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Success-Send-Verification-Code_Two-Factor-Auth.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Modal_Send-Verification-Code_Two-Factor-Auth.jpg" width="250" height="450"/> <img src="ScreenShot_App/Modal_Success-Send-Verification-Code_Two-Factor-Auth.jpg" width="250" height="450"/> 
 
 Kemudian user (pengguna) diminta untuk melakukan validasi terhadap kode verifikasi yang telah dikirimkan melalui email.
 
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Verify-Two-Factor-Auth.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Modal_Verify-Two-Factor-Auth.jpg" width="250" height="450"/> 
 
 #
 
 ### Delete Account (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_Delete-Account.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Modal_Delete-Account.jpg" width="250" height="450"/> 
 
 #
 
 ### Log Out (Modal / SweetAlertDialog)
-<img src="https://github.com/sabo99/TodoList-CI4-Restful/blob/master/ScreenShot_App/Modal_LogOut.jpg" width="250" height="450"/> 
+<img src="ScreenShot_App/Modal_LogOut.jpg" width="250" height="450"/> 
