@@ -76,36 +76,45 @@ class Profile : AppCompatActivity() {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    when(response.code()){
+                    when (response.code()) {
                         200 -> {
-                            user = response.body()!!.user
-                            Picasso.get().load(user.avatar?.let { ManagerCallback.getURLAvatar(it) })
-                                .placeholder(
-                                    R.drawable.ic_round_person_black
-                                ).into(binding.civAvatar)
+                            if (response.body()?.user != null) {
+                                user = response.body()!!.user
+                                Picasso.get()
+                                    .load(user.avatar?.let { ManagerCallback.getURLAvatar(it) })
+                                    .placeholder(
+                                        R.drawable.ic_round_person_black
+                                    ).into(binding.civAvatar)
 
-                            binding.tvProfileUsername.text =
-                                StringBuilder().append(user.username).append("\n")
+                                binding.tvProfileUsername.text =
+                                    StringBuilder().append(user.username).append("\n")
+                                        .append(ManagerCallback.onHashNumber(user.uid)).toString()
+                                binding.tvUsername.text = StringBuilder().append(user.username)
                                     .append(ManagerCallback.onHashNumber(user.uid)).toString()
-                            binding.tvUsername.text = StringBuilder().append(user.username)
-                                .append(ManagerCallback.onHashNumber(user.uid)).toString()
-                            binding.tvEmail.text = user.email
+                                binding.tvEmail.text = user.email
 
-                            if (user.two_factor_auth == 0) {
-                                binding.btnTwoFactorAuth.text = "Enable Two-Factor Auth"
-                                binding.btnTwoFactorAuth.backgroundTintList = ColorStateList.valueOf(
-                                    resources.getColor(
-                                        R.color.royal_blue,
-                                        theme
-                                    )
-                                )
-                            } else {
-                                binding.btnTwoFactorAuth.text = "Disable Two-Factor Auth"
-                                binding.btnTwoFactorAuth.backgroundTintList =
-                                    ColorStateList.valueOf(resources.getColor(R.color.red, theme))
-                            }
-
-                            isEnabledBtn(true)
+                                if (user.two_factor_auth == 0) {
+                                    binding.btnTwoFactorAuth.text = "Enable Two-Factor Auth"
+                                    binding.btnTwoFactorAuth.backgroundTintList =
+                                        ColorStateList.valueOf(
+                                            resources.getColor(
+                                                R.color.royal_blue,
+                                                theme
+                                            )
+                                        )
+                                } else {
+                                    binding.btnTwoFactorAuth.text = "Disable Two-Factor Auth"
+                                    binding.btnTwoFactorAuth.backgroundTintList =
+                                        ColorStateList.valueOf(
+                                            resources.getColor(
+                                                R.color.red,
+                                                theme
+                                            )
+                                        )
+                                }
+                                isEnabledBtn(true)
+                            } else
+                                isEnabledBtn(false)
                         }
                         404 -> isEnabledBtn(false)
 

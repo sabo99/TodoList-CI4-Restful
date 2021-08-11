@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             binding.shimmerLayout.visibility = View.VISIBLE
             binding.rvTodoList.visibility = View.GONE
             binding.shimmerLayout.startShimmer()
-
+            binding.fabAdd.hide()
             binding.swipeRefresh.isRefreshing = true
 
             Handler().postDelayed({
@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity() {
                 call: Call<RestfulAPIResponse>,
                 response: Response<RestfulAPIResponse>
             ) {
-                if (response.isSuccessful) {
+                if (response.code() == 200) {
                     if (response.body()?.user != null)
                         user = response.body()!!.user
                     else {
@@ -193,6 +193,8 @@ class MainActivity : AppCompatActivity() {
                         ManagerCallback.initCustomSweetAlertDialog(this@MainActivity, sweet)
                     }
                 }
+                else
+                    ManagerCallback.onSweetAlertDialogWarning(this@MainActivity, response.message())
                 isEnableMenuItem = true
                 isVisibleMenuItem = true
                 invalidateOptionsMenu()
