@@ -176,10 +176,9 @@ class MainActivity : AppCompatActivity() {
                 call: Call<RestfulAPIResponse>,
                 response: Response<RestfulAPIResponse>
             ) {
-                if (response.code() == 200) {
-                    if (response.body()?.user != null)
-                        user = response.body()!!.user
-                    else {
+                when(response.code()){
+                    200 -> user = response.body()!!.user
+                    404 -> {
                         val sweet =
                             SweetAlertDialog(this@MainActivity, SweetAlertDialog.WARNING_TYPE)
                         sweet.titleText = "Oops!"
@@ -192,9 +191,9 @@ class MainActivity : AppCompatActivity() {
                         sweet.show()
                         ManagerCallback.initCustomSweetAlertDialog(this@MainActivity, sweet)
                     }
+                    500 -> ManagerCallback.onSweetAlertDialogWarning(this@MainActivity, response.message())
                 }
-                else
-                    ManagerCallback.onSweetAlertDialogWarning(this@MainActivity, response.message())
+
                 isEnableMenuItem = true
                 isVisibleMenuItem = true
                 invalidateOptionsMenu()

@@ -85,7 +85,7 @@ interface RestfulAPIRequest {
      * Upload Avatar
      */
     @Multipart
-    @POST("api/users/{uid}/upload")
+    @POST("api/users/{uid}")
     fun uploadAvatar(
         @Path("uid") uid: Int,
         @Part avatar: MultipartBody.Part
@@ -157,7 +157,7 @@ interface RestfulAPIRequest {
      * Upload Image
      */
     @Multipart
-    @POST("api/todolist/{id}/upload")
+    @POST("api/todolist/{id}")
     fun uploadImage(
         @Path("id") id: Int,
         @Part image: MultipartBody.Part
