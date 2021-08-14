@@ -16,6 +16,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.ontbee.legacyforks.cn.pedant.SweetAlert.SweetAlertDialog
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
 import com.sabo.todolist_ci4_restful.Helper.Callback.FileUtilsCallback
@@ -27,7 +28,6 @@ import com.sabo.todolist_ci4_restful.R
 import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIResponse
 import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIService
 import com.sabo.todolist_ci4_restful.databinding.SweetAlertDialogEditTodoBinding
-import com.squareup.picasso.Picasso
 import com.theartofdev.edmodo.cropper.CropImage
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -80,7 +80,7 @@ class EditTodo : AppCompatActivity() {
         sweetAlertDialog.confirmText = "Update"
         sweetAlertDialog.setOnShowListener {
 
-            Picasso.get().load(ManagerCallback.getURLImage(todo.image)).into(binding.ivImage)
+            Glide.with(this).load(ManagerCallback.getURLImage(todo.image)).into(binding.ivImage)
             binding.etTitle.setText(todo.title)
             binding.etDesc.setText(todo.desc)
 

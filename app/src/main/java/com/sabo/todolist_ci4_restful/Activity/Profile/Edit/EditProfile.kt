@@ -13,16 +13,15 @@ import android.text.format.DateFormat
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
 import com.sabo.todolist_ci4_restful.Helper.Callback.FileUtilsCallback
 import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Model.User
-import com.sabo.todolist_ci4_restful.R
 import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIResponse
 import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIService
 import com.sabo.todolist_ci4_restful.databinding.ActivityEditProfileBinding
-import com.squareup.picasso.Picasso
 import com.theartofdev.edmodo.cropper.CropImage
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -65,9 +64,11 @@ class EditProfile : AppCompatActivity() {
     private fun initViews() {
         user = intent.getParcelableExtra("user")
 
-        Picasso.get().load(user.avatar?.let { ManagerCallback.getURLAvatar(it) })
-            .placeholder(R.drawable.ic_round_person).into(binding.civAvatar)
-        binding.tvUsername.text = StringBuilder().append(user.username).append(ManagerCallback.onHashNumber(user.uid))
+        Glide.with(this)
+            .load(user.avatar?.let { ManagerCallback.getURLAvatar(it) })
+            .into(binding.civAvatar)
+        binding.tvUsername.text =
+            StringBuilder().append(user.username).append(ManagerCallback.onHashNumber(user.uid))
 
         binding.chronometer.setOnChronometerTickListener {
             val time = SystemClock.elapsedRealtime() - it.base
@@ -165,7 +166,11 @@ class EditProfile : AppCompatActivity() {
                             finish()
                             ManagerCallback.onCreateLogUser(user.uid, KeyStore.UPDATE_PROFILE)
                         }
-                        400 -> ManagerCallback.onFailureSweetLoading(ManagerCallback.getErrorBody(response)!!.message)
+                        400 -> ManagerCallback.onFailureSweetLoading(
+                            ManagerCallback.getErrorBody(
+                                response
+                            )!!.message
+                        )
                         500 -> ManagerCallback.onFailureSweetLoading(response.message())
                     }
                     ManagerCallback.onLog("uploadAvatar", response)

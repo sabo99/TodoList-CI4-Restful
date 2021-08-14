@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
 import com.sabo.todolist_ci4_restful.Helper.Callback.KeyStore
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
@@ -14,7 +15,6 @@ import com.sabo.todolist_ci4_restful.R
 import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIResponse
 import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIService
 import com.sabo.todolist_ci4_restful.databinding.ActivityProfileBinding
-import com.squareup.picasso.Picasso
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -80,7 +80,7 @@ class Profile : AppCompatActivity() {
                         200 -> {
                             if (response.body()?.user != null) {
                                 user = response.body()!!.user
-                                Picasso.get()
+                                Glide.with(this@Profile)
                                     .load(user.avatar?.let { ManagerCallback.getURLAvatar(it) })
                                     .placeholder(
                                         R.drawable.ic_round_person_black

@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.sabo.todolist_ci4_restful.Helper.Callback.EventOnRefresh
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
 import com.sabo.todolist_ci4_restful.Model.Todo
 import com.sabo.todolist_ci4_restful.R
 import com.sabo.todolist_ci4_restful.databinding.ActivityDetailTodoBinding
-import com.squareup.picasso.Picasso
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -55,7 +55,7 @@ class DetailTodo : AppCompatActivity() {
         uid = ManagerPreferences.getUID(this)
         todo = intent.getParcelableExtra("todo")
 
-        Picasso.get().load(ManagerCallback.getURLImage(todo.image)).into(binding.ivImage)
+        Glide.with(this).load(ManagerCallback.getURLImage(todo.image)).into(binding.ivImage)
         binding.tvTitle.text = todo.title
         binding.tvDesc.text = todo.desc
         if (todo.updated_at == null)
@@ -86,7 +86,7 @@ class DetailTodo : AppCompatActivity() {
         if (event.onRefresh){
 
             todo = event.value as Todo
-            Picasso.get().load(ManagerCallback.getURLImage(todo.image)).into(binding.ivImage)
+            Glide.with(this).load(ManagerCallback.getURLImage(todo.image)).into(binding.ivImage)
             binding.tvTitle.text = todo.title
             binding.tvDesc.text = todo.desc
 

@@ -13,6 +13,7 @@ import com.sabo.todolist_ci4_restful.Activity.Auth.Login
 import com.sabo.todolist_ci4_restful.Helper.Callback.ManagerCallback
 import com.sabo.todolist_ci4_restful.Helper.SharedPreference.ManagerPreferences
 import com.sabo.todolist_ci4_restful.R
+import com.sabo.todolist_ci4_restful.Restful_API.RestfulAPIService
 import java.math.BigInteger
 import java.net.InetAddress
 import java.util.*
@@ -42,5 +43,7 @@ class SplashActivity : AppCompatActivity() {
             finish()
 
         }, 1000)
+
+        ManagerCallback.onLog("BASE_URL", RestfulAPIService.IMG_TODO_URL)
     }
 }
