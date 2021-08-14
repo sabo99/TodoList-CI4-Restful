@@ -7,7 +7,6 @@ import com.sabo.todolist_ci4_restful.Model.Todo
 import com.sabo.todolist_ci4_restful.Model.User
 
 data class RestfulAPIResponse(
-    @SerializedName("code") val code: Int,
     @SerializedName("message") val message: String,
     @SerializedName("errorValidation") val errorValidation: ErrorValidation,
 

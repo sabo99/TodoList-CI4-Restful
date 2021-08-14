@@ -73,7 +73,7 @@ class EditUsername {
                     call: Call<RestfulAPIResponse>,
                     response: Response<RestfulAPIResponse>
                 ) {
-                    when (response.body()!!.code) {
+                    when (response.code()) {
                         200 -> ProfileCallback.onUpdateValues(
                             context,
                             sweetAlertDialog,

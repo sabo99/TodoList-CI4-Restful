@@ -273,7 +273,7 @@ class EditTodo : AppCompatActivity() {
                 call: Call<RestfulAPIResponse>,
                 response: Response<RestfulAPIResponse>
             ) {
-                when (response.body()!!.code) {
+                when (response.code()) {
                     200 -> {
                         Handler().postDelayed({
                             ManagerCallback.onStopSweetLoading()
@@ -290,7 +290,6 @@ class EditTodo : AppCompatActivity() {
                                 .postSticky(EventOnRefresh(true, response.body()!!.todo))
                         }, 2000)
                     }
-
                     400 -> binding.tilImage.text = ManagerCallback.getErrorBody(response)!!.message
                     500 -> ManagerCallback.onFailureSweetLoading(response.message())
                 }
