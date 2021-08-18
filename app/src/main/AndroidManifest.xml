@@ -9,8 +9,8 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
         android:icon="@mipmap/ic_launcher"
@@ -19,7 +19,8 @@
         android:supportsRtl="true"
         android:theme="@style/MaterialComponent.DarkActionBar"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Activity.SplashActivity"
+        <activity
+            android:name=".Activity.SplashActivity"
             android:launchMode="singleTask"
             android:theme="@style/SweetAlert.NoActionBar">
             <intent-filter>
@@ -55,7 +56,7 @@
         <activity
             android:name=".Activity.Auth.Login"
             android:launchMode="singleTask"
-            android:theme="@style/SweetAlert.NoActionBar"/>
+            android:theme="@style/SweetAlert.NoActionBar" />
         <activity
             android:name=".Activity.MainActivity"
             android:launchMode="singleTask"
