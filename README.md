@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         /** Without findViewById */
-        binding.tvMsg.text = "Bye bye findViewById"
+        binding.textView.text = "Bye bye findViewById"
     }
 }
 ```
