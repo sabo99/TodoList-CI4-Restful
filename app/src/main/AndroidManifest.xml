@@ -22,6 +22,7 @@
         <activity
             android:name=".Activity.SplashActivity"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/SweetAlert.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,37 +33,46 @@
         <activity
             android:name=".Activity.Todo.DetailTodo"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/SweetAlert.DarkActionBar" />
         <activity
             android:name=".Activity.Todo.EditTodo"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/SweetAlert.NoActionBar" />
         <activity
             android:name=".Activity.Todo.CreateTodo"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/SweetAlert.NoActionBar" />
         <activity
             android:name=".Activity.Profile.Edit.EditProfile"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/SweetAlert.NoActionBar" />
         <activity
             android:name=".Activity.Profile.Profile"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/SweetAlert.DarkActionBar" />
         <activity
             android:name=".Activity.Auth.SignUp"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/MaterialComponent.NoActionBar" />
         <activity
             android:name=".Activity.Auth.Login"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/SweetAlert.NoActionBar" />
         <activity
             android:name=".Activity.MainActivity"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/SweetAlert.DarkActionBar" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Base.Theme.AppCompat" />
     </application>
 
