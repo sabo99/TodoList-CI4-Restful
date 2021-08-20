@@ -229,6 +229,7 @@ class ForgotPassword {
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
+                                400 -> ManagerCallback.onLog("updatePassword", ManagerCallback.getErrorBody(response)!!.toString())
                                 500 -> ManagerCallback.onSweetAlertDialogWarning(context, response.message())
                             }
                             binding.progressBar.visibility = View.GONE
