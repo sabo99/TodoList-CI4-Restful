@@ -54,10 +54,10 @@ class Login : AppCompatActivity() {
             binding.progressBar.visibility = View.VISIBLE
             binding.btnLogin.isEnabled = false
 
-            val email = binding.etEmail.text.toString()
+            val emailOrUsername = binding.etEmailOrUsername.text.toString()
             val password = binding.etPassword.text.toString()
 
-            RestfulAPIService.requestMethod().signIn(email, password).enqueue(object :
+            RestfulAPIService.requestMethod().signIn(emailOrUsername, password).enqueue(object :
                 Callback<RestfulAPIResponse> {
                 override fun onResponse(
                     call: Call<RestfulAPIResponse>,
@@ -78,12 +78,12 @@ class Login : AppCompatActivity() {
                             val errors =
                                 ManagerCallback.getErrorBody(response)!!.errorValidation
 
-                            if (!errors.email.isNullOrEmpty())
-                                binding.etEmail.setBackgroundResource(R.drawable.border_edit_text_error)
+                            if (!errors.emailOrUsername.isNullOrEmpty())
+                                binding.etEmailOrUsername.setBackgroundResource(R.drawable.border_edit_text_error)
                             if (!errors.password.isNullOrEmpty())
                                 binding.etPassword.setBackgroundResource(R.drawable.border_edit_text_error)
 
-                            binding.tilEmail.error = errors.email
+                            binding.tilEmailOrUsername.error = errors.emailOrUsername
                             binding.tilPassword.error = errors.password
 
                             ManagerCallback.onLog("signIn", "$errors")
@@ -261,30 +261,30 @@ class Login : AppCompatActivity() {
 
 
     private fun clearEditText() {
-        binding.etEmail.setText("")
+        binding.etEmailOrUsername.setText("")
         binding.etPassword.setText("")
 
-        binding.etEmail.clearFocus()
+        binding.etEmailOrUsername.clearFocus()
         binding.etPassword.clearFocus()
     }
 
     private fun clearErrorText() {
-        binding.tilEmail.error = ""
+        binding.tilEmailOrUsername.error = ""
         binding.tilPassword.error = ""
 
-        binding.etEmail.setBackgroundResource(R.drawable.border_edit_text_normal)
+        binding.etEmailOrUsername.setBackgroundResource(R.drawable.border_edit_text_normal)
         binding.etPassword.setBackgroundResource(R.drawable.border_edit_text_normal)
     }
 
     private fun onTextWatcher() {
-        binding.etEmail.addTextChangedListener(object : TextWatcher {
+        binding.etEmailOrUsername.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if (s.toString().isNotEmpty()) {
-                    binding.tilEmail.error = ""
-                    binding.etEmail.setBackgroundResource(R.drawable.border_edit_text_normal)
+                    binding.tilEmailOrUsername.error = ""
+                    binding.etEmailOrUsername.setBackgroundResource(R.drawable.border_edit_text_normal)
                 }
             }
 

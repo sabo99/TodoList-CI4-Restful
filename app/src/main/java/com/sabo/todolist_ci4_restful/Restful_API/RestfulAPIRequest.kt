@@ -26,7 +26,7 @@ interface RestfulAPIRequest {
     @FormUrlEncoded
     @POST("api/users/auth")
     fun signIn(
-        @Field("email") email: String,
+        @Field("emailOrUsername") emailOrUsername: String,
         @Field("password") password: String
     ): Call<RestfulAPIResponse>
 

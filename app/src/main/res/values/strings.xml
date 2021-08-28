@@ -13,6 +13,7 @@
     <!--  Hint String  -->
     <string name="hint_image">Image</string>
     <string name="hint_email">Email</string>
+    <string name="hint_emailOrUsername">Email or username</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Username</string>
     <string name="hint_password_confirm">Password Confirm</string>

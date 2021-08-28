@@ -8,6 +8,7 @@ data class ErrorValidation(
     var uid: Int,
     var username: String,
     var email: String,
+    var emailOrUsername: String,
     var password: String,
     var password_confirm: String,
     var avatar: String,
