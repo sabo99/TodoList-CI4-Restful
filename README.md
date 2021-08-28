@@ -40,7 +40,7 @@ Change the API BASE URL in the following file <a href="app/src/main/java/com/sab
 ```kotlin
 class RestfulAPIService {
     companion object {
-        private const val URL = "http://192.168.1.6/Restful-API/todolist-ci4-restful/public/"
+        private const val URL = "http://192.168.1.8/ci4todolist-restfulapi/public/"
     }
 }
 ```
